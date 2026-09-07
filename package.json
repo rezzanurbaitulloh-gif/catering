@@ -1,0 +1,29 @@
+{
+  "name": "catering-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Catering Operating System — customer acquisition to event profitability",
+  "workspaces": [
+    "apps/customer-web",
+    "apps/admin-web",
+    "packages/types",
+    "packages/config",
+    "packages/validation",
+    "packages/api",
+    "packages/business-logic",
+    "packages/design-tokens"
+  ],
+  "scripts": {
+    "dev:customer": "npm run dev --workspace apps/customer-web",
+    "dev:admin": "npm run dev --workspace apps/admin-web",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:migrate": "supabase db push",
+    "db:seed": "psql \"$DATABASE_URL\" -f supabase/seed/demo.sql",
+    "docs": "echo docs in ./docs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

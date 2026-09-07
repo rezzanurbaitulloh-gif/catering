@@ -141,3 +141,26 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.iml
+.idea/
+*.jks
+*.keystore
+
+# Supabase local
+supabase/.branches
+supabase/.temp
+
+# Vercel
+.vercel
+
+# Env (all variants ignored; only .env.example committed)
+.env
+.env.*
+!.env.example

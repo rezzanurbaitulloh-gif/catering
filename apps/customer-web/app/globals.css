@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #faf7f2;
+  --ink: #1c1917;
+  --gold: #b45309;
+  --line: #e7e0d4;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Cincin fokus tegas khas hospitality-editorial (a11y: selalu terlihat) */
+:focus-visible {
+  outline: 3px solid #b45309;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: #f5e6c8;
+  color: #1c1917;
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+  /* Target sentuh ≥44px */
+  .touch {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  .field {
+    @apply touch w-full rounded-brand border border-line bg-white px-4 py-3 text-base text-ink placeholder:text-muted focus:border-gold;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-ink;
+  }
+  .btn-gold {
+    @apply touch inline-flex items-center justify-center gap-2 rounded-brand bg-gold px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-gold-deep disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-outline {
+    @apply touch inline-flex items-center justify-center gap-2 rounded-brand border border-ink/25 bg-transparent px-6 py-3 text-base font-semibold text-ink transition-colors hover:border-gold hover:text-gold-deep disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .kicker {
+    @apply text-xs font-bold uppercase tracking-[0.22em] text-gold;
+  }
+  .card {
+    @apply rounded-brand border border-line bg-white p-5 shadow-[0_1px_0_rgba(28,25,23,0.04)];
+  }
+  .rule-gold {
+    @apply h-px w-16 bg-gold;
+  }
+  .error-text {
+    @apply mt-1 text-sm font-medium text-[#B91C1C];
+  }
+}

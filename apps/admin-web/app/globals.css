@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #faf7f2;
+  --ink: #1c1917;
+  --line: #e7e0d4;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 16px;
+}
+
+.font-display {
+  font-family: Fraunces, Georgia, serif;
+}
+
+@layer components {
+  .card {
+    @apply bg-paper border border-line rounded-[14px] p-4 shadow-[0_1px_2px_rgba(28,25,23,0.05)];
+  }
+  .input {
+    @apply w-full bg-paper border border-line rounded-[10px] px-3 py-2.5 text-[15px] text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold min-h-[44px];
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-[10px] px-4 min-h-[44px] text-[15px] font-semibold transition-colors disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-ink text-cream hover:bg-night;
+  }
+  .btn-gold {
+    @apply btn bg-gold text-white hover:bg-clay;
+  }
+  .btn-ghost {
+    @apply btn border border-line bg-paper text-ink hover:bg-cream;
+  }
+  .btn-danger {
+    @apply btn bg-danger text-white hover:brightness-110;
+  }
+  .label {
+    @apply block text-[13px] font-semibold text-muted mb-1;
+  }
+  .pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-bold whitespace-nowrap;
+  }
+  .rowcard {
+    @apply card flex flex-col gap-2 md:grid md:items-center;
+  }
+  .h-section {
+    @apply font-display text-[20px] leading-tight;
+  }
+  .muted {
+    @apply text-muted text-[14px];
+  }
+  .tablewrap {
+    @apply overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0;
+  }
+  table.grid {
+    @apply w-full text-[14px] border-collapse min-w-[640px];
+  }
+  table.grid th {
+    @apply text-left text-[12px] uppercase tracking-wide text-muted font-bold border-b border-line pb-2 pr-3 whitespace-nowrap;
+  }
+  table.grid td {
+    @apply border-b border-line py-2.5 pr-3 align-top;
+  }
+}

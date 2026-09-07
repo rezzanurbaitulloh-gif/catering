@@ -1,0 +1,7 @@
+{
+  "name": "@catering-os/config",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/capabilities.ts",
+  "types": "src/capabilities.ts"
+}
