@@ -20,8 +20,5 @@ export async function GET() {
   const list = ((data ?? []) as Array<{ capability: string; enabled: boolean }>)
     .filter((r) => r.enabled)
     .map((r) => r.capability);
-  const list = ((data ?? []) as Array<{ capability: string; enabled: boolean }>)
-    .filter((r) => r.enabled)
-    .map((r) => r.capability);
   return NextResponse.json({ capabilities: list, limited: false });
 }
