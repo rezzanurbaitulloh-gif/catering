@@ -29,8 +29,25 @@ export default function ModeSwitch({ compact = false }: { compact?: boolean }) {
   }, [businessId]);
 
   useEffect(() => {
-    if (!isDemo) load();
-  }, [isDemo, load]);
+    if (isDemo) return;
+    load();
+    // Ikut berubah saat mode diubah dari web lain (realtime + fokus).
+    const sb = supabaseBrowser();
+    const ch = sb
+      .channel('mode-sync')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'business_capabilities', filter: `business_id=eq.${businessId}` },
+        () => load()
+      )
+      .subscribe();
+    const onFocus = () => load();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      sb.removeChannel(ch);
+    };
+  }, [isDemo, load, businessId]);
 
   if (isDemo) {
     return (

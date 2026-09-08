@@ -80,7 +80,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let alive = true;
-    (async () => {
+    async function fetchCaps() {
       try {
         const sb = supabaseBrowser();
         const { data } = await sb
@@ -95,9 +95,23 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       } catch {
         if (alive) setCaps({});
       }
-    })();
+    }
+    fetchCaps();
+    // Navigasi ikut berubah saat mode diubah dari web lain.
+    const sb = supabaseBrowser();
+    const ch = sb
+      .channel('nav-mode-sync')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'business_capabilities', filter: `business_id=eq.${businessId}` },
+        () => fetchCaps()
+      )
+      .subscribe();
+    window.addEventListener('focus', fetchCaps);
     return () => {
       alive = false;
+      window.removeEventListener('focus', fetchCaps);
+      sb.removeChannel(ch);
     };
   }, [businessId]);
 

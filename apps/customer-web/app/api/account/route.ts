@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   }
   const { data: events } = await client
     .from("events")
-    .select("event_no,title,event_type,event_date,venue_text,status,payment_status,pax_confirmed,pax_final")
+    .select("id,event_no,title,event_type,event_date,venue_text,status,payment_status,pax_confirmed,pax_final")
     .eq("business_id", BUSINESS_ID)
     .eq("customer_id", cust.id)
     .order("event_date", { ascending: false });

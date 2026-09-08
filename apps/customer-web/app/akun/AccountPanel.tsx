@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
+import PayOnlineButton from "@/components/PayOnline";
 import { formatIDR, formatTanggalID } from "@/lib/format";
 
 interface AccountData {
   customer: { name: string };
   events: Array<{
-    event_no: string; title: string; event_type: string; event_date: string;
+    id: string; event_no: string; title: string; event_type: string; event_date: string;
     venue_text: string | null; status: string; payment_status: string;
     pax_confirmed: number; pax_final: number | null;
   }>;
@@ -79,6 +80,11 @@ export default function AccountPanel() {
                     </div>
                     <p className="mt-1 text-muted">{ev.event_no} · {ev.event_type} · {formatTanggalID(ev.event_date)}</p>
                     <p className="mt-1">Tamu: <strong>{ev.pax_final ?? ev.pax_confirmed} pax</strong></p>
+                    {ev.payment_status !== "PAID" ? (
+                      <div className="mt-2">
+                        <PayOnlineButton eventId={ev.id} label="Bayar Online" />
+                      </div>
+                    ) : null}
                   </li>
                 ))}
               </ul>

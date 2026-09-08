@@ -5,6 +5,7 @@ import { BUSINESS_ID } from "@/lib/constants";
 import { formatIDR, formatTanggalID } from "@/lib/format";
 import { createPrivilegedClient } from "@/lib/server-db";
 import ApproveForm from "./ApproveForm";
+import PayOnlineButton from "@/components/PayOnline";
 
 export const metadata: Metadata = { title: "Tinjau Penawaran" };
 export const dynamic = "force-dynamic";
@@ -94,12 +95,16 @@ export default async function PenawaranPage({ params }: { params: { id: string }
         ) : null}
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-4">
         <ApproveForm
           quoteId={q.id}
           disabled={!canApprove}
           reason={canApprove ? undefined : `Status saat ini ${q.status} — persetujuan via halaman ini hanya untuk penawaran yang dikirim admin.`}
         />
+        <div className="rounded-brand border border-line bg-white p-4">
+          <p className="mb-2 text-sm font-bold">Bayar DP / pelunasan daring (Midtrans)</p>
+          <PayOnlineButton quoteId={q.id} />
+        </div>
       </div>
     </div>
   );
