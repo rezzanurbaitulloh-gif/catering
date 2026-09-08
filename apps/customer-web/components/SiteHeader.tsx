@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ModeBadge from "./ModeBadge";
 
 const NAV: Array<{ href: string; label: string }> = [
   { href: "/paket", label: "Paket" },
@@ -23,6 +24,7 @@ export default function SiteHeader() {
           </span>
         </Link>
         <div className="flex items-center gap-2">
+          <ModeBadge />
           <Link href="/akun" className="touch hidden items-center px-3 text-sm font-semibold text-ink/80 hover:text-gold-deep sm:inline-flex">
             Akun Saya
           </Link>

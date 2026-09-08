@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase';
 import { useBusiness } from '@/lib/session';
 import { canAccess } from '@/lib/capabilities';
+import ModeSwitch from '@/components/ModeSwitch';
 
 interface NavItem {
   href: string;
@@ -116,6 +117,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <p className="font-display text-[20px] leading-tight">Rasa Nusantara</p>
           <p className="muted">Pusat Komando</p>
         </Link>
+        <div className="mt-2">
+          <ModeSwitch />
+        </div>
         {isDemo ? (
           <Link href="/login" className="btn-gold w-full mt-3 !min-h-[40px] !text-[14px]">
             Login untuk aksi penuh
@@ -159,11 +163,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       {/* Konten */}
       <div className="flex-1 min-w-0">
         {/* Topbar mobile */}
-        <header className="md:hidden sticky top-0 z-10 bg-cream/95 backdrop-blur border-b border-line px-4 py-3 flex items-center justify-between">
+        <header className="md:hidden sticky top-0 z-10 bg-cream/95 backdrop-blur border-b border-line px-4 py-3 flex items-center justify-between gap-2">
           <Link href="/dashboard" className="font-display text-[18px]">
             Rasa Nusantara
           </Link>
-          {isDemo ? (
+          <div className="flex items-center gap-2">
+            <ModeSwitch compact />
+            {isDemo ? (
             <Link href="/login" className="btn-gold !min-h-[36px] !px-3 !text-[13px]">
               Login
             </Link>
@@ -172,6 +178,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               Keluar
             </button>
           )}
+          </div>
         </header>
         <main className="px-4 pt-4 pb-24 md:px-8 md:pt-6 md:pb-10 max-w-6xl mx-auto">{children}</main>
 
