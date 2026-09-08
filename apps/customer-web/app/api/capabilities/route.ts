@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { createHash } from "crypto";
 import { BUSINESS_ID } from "@/lib/constants";
 import { createPrivilegedClient } from "@/lib/server-db";
 
@@ -21,9 +20,5 @@ export async function GET() {
   const list = ((data ?? []) as Array<{ capability: string; enabled: boolean }>)
     .filter((r) => r.enabled)
     .map((r) => r.capability);
-  return NextResponse.json({
-    capabilities: list,
-    limited: false,
-    dbgkey: createHash("sha256").update(process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").digest("hex").slice(0, 12),
-  });
+  return NextResponse.json({ capabilities: list, limited: false });
 }
