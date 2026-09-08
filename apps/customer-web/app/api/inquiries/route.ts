@@ -22,27 +22,27 @@ export async function POST(req: Request) {
     );
   }
   const tanggal = v.tanggal || null;
-  const { data, error } = await sb
-    .from("inquiries")
-    .insert({
-      business_id: BUSINESS_ID,
-      contact_name: v.nama,
-      contact_phone: v.phone,
-      event_type: v.tipeAcara,
-      event_date: tanggal,
-      venue_text: v.venue || null,
-      pax: v.pax,
-      menu_notes: v.catatan || null,
-      vegetarian: v.vegetarian,
-      vegan: v.vegan,
-      allergies: v.allergies,
-      dietary_notes: v.dietaryNotes || null,
-      status: "NEW",
-    })
-    .select("id")
-    .single();
-  if (error || !data) {
+  // ID dibuat server-side agar bisa dikembalikan TANPA select pasca-insert
+  // (anon tidak punya SELECT di inquiries — RLS; chained .select() akan 42501).
+  const id = crypto.randomUUID();
+  const { error } = await sb.from("inquiries").insert({
+    id,
+    business_id: BUSINESS_ID,
+    contact_name: v.nama,
+    contact_phone: v.phone,
+    event_type: v.tipeAcara,
+    event_date: tanggal,
+    venue_text: v.venue || null,
+    pax: v.pax,
+    menu_notes: v.catatan || null,
+    vegetarian: v.vegetarian,
+    vegan: v.vegan,
+    allergies: v.allergies,
+    dietary_notes: v.dietaryNotes || null,
+    status: "NEW",
+  });
+  if (error) {
     return NextResponse.json({ error: "Gagal menyimpan. Coba lagi.", code: error?.code }, { status: 500 });
   }
-  return NextResponse.json({ id: (data as { id: string }).id }, { status: 201 });
+  return NextResponse.json({ id }, { status: 201 });
 }

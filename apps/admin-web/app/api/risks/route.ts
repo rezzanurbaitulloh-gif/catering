@@ -21,10 +21,14 @@ export async function GET(req: Request) {
     }>);
     // Kebutuhan bahan = resep × pax (server) vs stok tersedia.
     const { data: ritems } = await supabase.from('recipe_items').select('recipe_id,ingredient_id,qty_per_yield');
-    const { data: inv } = await supabase
-      .from('inventory_items')
-      .select('ingredient_id,stock,reserved,ingredients!inner(name,unit)')
-      .eq('business_id', businessId);
+    const [{ data: inv }, { data: ings }] = await Promise.all([
+      supabase.from('inventory_items').select('ingredient_id,stock,reserved,ingredients!inner(name,unit)').eq('business_id', businessId),
+      supabase.from('ingredients').select('id,name,unit').eq('business_id', businessId),
+    ]);
+    const nameMap = new Map<string, { name: string; unit: string }>();
+    for (const g of ((ings ?? []) as unknown as Array<{ id: string; name: string; unit: string }>)) {
+      nameMap.set(g.id, { name: g.name, unit: g.unit });
+    }
     const invMap = new Map<string, { name: string; unit: string; avail: number }>();
     for (const r of ((inv ?? []) as unknown as Array<{ ingredient_id: string; stock: number; reserved: number; ingredients: { name: string; unit: string } }>)) {
       invMap.set(r.ingredient_id, { name: r.ingredients.name, unit: r.ingredients.unit, avail: Number(r.stock) - Number(r.reserved) });
@@ -42,7 +46,8 @@ export async function GET(req: Request) {
       const s = invMap.get(ing);
       const avail = s?.avail ?? 0;
       if (req > avail && req > 0) {
-        globalShort.push({ ingredient_name: s?.name ?? ing.slice(0, 8), shortage: Math.round(req - avail), unit: s?.unit ?? '' });
+        const meta = s ?? nameMap.get(ing);
+        globalShort.push({ ingredient_name: meta?.name ?? 'Bahan', shortage: Math.round(req - avail), unit: meta?.unit ?? '' });
       }
     }
     const out = [];
