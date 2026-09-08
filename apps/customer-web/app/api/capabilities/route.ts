@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { BUSINESS_ID } from "@/lib/constants";
 import { createPrivilegedClient } from "@/lib/server-db";
 
+// Selalu dinamis: mode harus memantul seketika saat diubah dari web mana pun.
+export const dynamic = "force-dynamic";
+
 // GET /api/capabilities — daftar capability aktif untuk gating UI premium.
 export async function GET() {
   const { client, mode } = createPrivilegedClient();
