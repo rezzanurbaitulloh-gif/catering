@@ -20,5 +20,22 @@ export async function GET() {
   const list = ((data ?? []) as Array<{ capability: string; enabled: boolean }>)
     .filter((r) => r.enabled)
     .map((r) => r.capability);
-  return NextResponse.json({ capabilities: list, limited: false });
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  let host = "";
+  try {
+    host = new URL(url).hostname;
+  } catch {
+    host = "bad-url";
+  }
+  const keyLen = (process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").length;
+  return NextResponse.json({
+    capabilities: list,
+    limited: false,
+    dbg: {
+      raw: (data ?? []).length,
+      rows: ((data ?? []) as Array<{ capability: string; enabled: boolean }>).filter((r) => !r.enabled).map((r) => r.capability),
+      host,
+      keyLen,
+    },
+  });
 }
