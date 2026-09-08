@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase';
 import { useBusiness } from '@/lib/session';
-import { PageHeader, Section, Loading, ErrorState, Act, LoginRequired } from '@/components/ui';
+import { BASIC_CAPABILITIES, PREMIUM_CAPABILITIES, detectMode } from '@/lib/capabilities';
+import { PageHeader, Section, Loading, ErrorState, Act, LoginRequired, StatusPill } from '@/components/ui';
 
 function Settings() {
   const { businessId, isDemo } = useBusiness();
@@ -55,16 +56,45 @@ function Settings() {
     else load();
   }
 
+  // Saklar mode satu-ketuk: Basic = semua premium mati; Premium = semua menyala.
+  async function setMode(premium: boolean) {
+    setErr(null); setSaved('');
+    const sb = supabaseBrowser();
+    for (const cap of PREMIUM_CAPABILITIES) {
+      const { error } = await sb
+        .from('business_capabilities')
+        .upsert({ business_id: businessId, capability: cap, enabled: premium }, { onConflict: 'business_id,capability' });
+      if (error) { setErr(`Gagal pada ${cap}: ${error.message}`); break; }
+    }
+    await load();
+    setSaved(premium ? 'Mode PREMIUM aktif — semua modul terbuka.' : 'Mode BASIC aktif — hanya modul dasar.');
+  }
+
   if (err && !s) return <ErrorState text={err} retry={load} />;
   if (!s) return <Loading />;
 
-  const basic = caps.filter((c) => !['crm', 'advanced_quotation', 'quotation_versioning', 'quote_approval', 'change_request', 'customer_accounts', 'online_payment', 'dynamic_pricing', 'promotions', 'coupons', 'production_planning', 'recipe_bom', 'inventory', 'procurement', 'suppliers', 'workforce_management', 'vehicle_management', 'equipment_tracking', 'resource_capacity', 'venue_management', 'transport_management', 'advanced_event_control', 'risk_engine', 'advanced_incident_management', 'advanced_finance', 'costing', 'profitability', 'advanced_analytics', 'exports', 'offline_sync', 'qr_scanning', 'digital_handover'].includes(c.capability));
-  const premium = caps.filter((c) => !basic.includes(c));
+  const basic = caps.filter((c) => (BASIC_CAPABILITIES as readonly string[]).includes(c.capability));
+  const premium = caps.filter((c) => (PREMIUM_CAPABILITIES as readonly string[]).includes(c.capability));
+  const mode = detectMode(caps);
 
   return (
     <div>
       {err ? <p className="card border-danger/40 text-danger mb-3 text-[14px]" role="alert">{err}</p> : null}
       {saved ? <p className="card border-leaf/40 text-leaf mb-3 text-[14px]" role="status">{saved}</p> : null}
+      <div className="card mb-3">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <p className="font-semibold">Mode produk saat ini</p>
+          <StatusPill status={mode === 'PREMIUM' ? 'READY' : mode === 'BASIC' ? 'PLANNED' : 'MEDIUM'} />
+        </div>
+        <p className="muted mt-1">
+          {mode === 'PREMIUM' ? 'Premium — seluruh modul canggih menyala.' : mode === 'BASIC' ? 'Basic — operasional dasar saja (ritme harian tetap jalan).' : 'Campuran — sebagian modul premium menyala.'}
+        </p>
+        <div className="mt-2 flex gap-2 flex-wrap">
+          <Act tone={mode === 'BASIC' ? 'primary' : 'ghost'} onClick={() => setMode(false)}>Mode Basic</Act>
+          <Act tone={mode === 'PREMIUM' ? 'primary' : 'gold'} onClick={() => setMode(true)}>Mode Premium</Act>
+        </div>
+        <p className="muted mt-2 text-[13px]">Mematikan premium menyembunyikan rute, navigasi, dan aksi di SEMUA aplikasi — server ikut menolak. Data tidak dihapus, tinggal nyalakan lagi.</p>
+      </div>
       <div className="card mb-3">
         <p className="font-semibold mb-2">Identitas usaha</p>
         <div className="grid gap-2 sm:grid-cols-2">
