@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     .eq("reference", order_id)
     .maybeSingle();
   if (!pay) return NextResponse.json({ error: "Transaksi tidak ditemukan." }, { status: 404 });
-  const p = pay as {
+  const p = pay as unknown as {
     amount: number; method: string; kind: string; status: string; received_at: string | null;
     events: { event_no: string; title: string; payment_status: string } | null;
   };
