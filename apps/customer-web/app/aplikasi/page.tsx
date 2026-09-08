@@ -30,11 +30,9 @@ export default function AplikasiPage() {
           </div>
           <a
             className="btn-gold"
-            href="https://github.com/rezzanurbaitulloh-gif/catering/releases"
-            target="_blank"
-            rel="noreferrer"
+            href="https://github.com/rezzanurbaitulloh-gif/catering/releases/download/v1.2.0/rasaops-v1.2.0.apk"
           >
-            Unduh via GitHub Releases
+            Unduh APK (v{APK_RELEASE.version})
           </a>
         </div>
         <div className="mt-4 border-t border-line pt-4">
@@ -69,7 +67,16 @@ export default function AplikasiPage() {
       </div>
 
       <p className="mt-6 text-center text-sm text-muted">
-        Butuh bantuan instalasi? <a className="font-bold text-gold-deep underline" href={WA} target="_blank" rel="noreferrer">Chat WhatsApp</a>
+        Versi lain &amp; catatan lengkap:{" "}
+        <a
+          className="font-bold text-gold-deep underline"
+          href="https://github.com/rezzanurbaitulloh-gif/catering/releases"
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub Releases
+        </a>{" "}
+        · Butuh bantuan instalasi?{" "}<a className="font-bold text-gold-deep underline" href={WA} target="_blank" rel="noreferrer">Chat WhatsApp</a>
       </p>
     </div>
   );

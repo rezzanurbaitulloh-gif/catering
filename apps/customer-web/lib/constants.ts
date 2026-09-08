@@ -36,7 +36,7 @@ export const HERO_FALLBACK = {
 export const APK_RELEASE = {
   version: "1.2.0",
   updatedAt: "September 2026",
-  size: "± 28 MB",
+  size: "± 35 MB",
   minAndroid: "Android 8.0 (Oreo) ke atas",
   changelog: [
     "Checklist persiapan & serah terima digital dengan foto bukti",
