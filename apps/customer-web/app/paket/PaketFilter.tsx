@@ -22,8 +22,8 @@ function matchCategory(p: PackageRow, kat: string): boolean {
 }
 
 // Katalog ala marketplace: cari + chip kategori + chip harga.
-export default function PaketFilter({ initial, initialKat = "" }: { initial: PackageRow[]; initialKat?: string }) {
-  const [q, setQ] = useState("");
+export default function PaketFilter({ initial, initialKat = "", initialQ = "" }: { initial: PackageRow[]; initialKat?: string; initialQ?: string }) {
+  const [q, setQ] = useState(initialQ);
   const [kat, setKat] = useState(initialKat);
   const [band, setBand] = useState<number>(0);
 

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PackageCard from "@/components/PackageCard";
+import TestimonialCarousel from "@/components/TestimonialCarousel";
 import { BUSINESS_ID, CATEGORIES, CONTACT_FALLBACK, HERO_IMG, HERO_FALLBACK, SITE } from "@/lib/constants";
-import { formatIDR, waLink } from "@/lib/format";
+import { waLink } from "@/lib/format";
 import { createAnonServerClient } from "@/lib/supabase-server";
 import type { PackageRow, TestimonialRow } from "@/lib/types";
 
@@ -14,16 +15,18 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 async function getHomeData() {
-  const fallback = { hero: HERO_FALLBACK, packages: [] as PackageRow[], testimonials: [] as TestimonialRow[] };
+  const fallback = { hero: HERO_FALLBACK, packages: [] as PackageRow[], testimonials: [] as TestimonialRow[], rating: null as { avg: number; count: number } | null };
   const sb = createAnonServerClient();
   if (!sb) return fallback;
   try {
     const [heroRes, pkgRes, testiRes] = await Promise.all([
       sb.from("website_content").select("value").eq("business_id", BUSINESS_ID).eq("key", "hero").maybeSingle(),
       sb.from("packages").select("*").eq("business_id", BUSINESS_ID).eq("is_active", true).order("base_price_per_pax", { ascending: true }).limit(4),
-      sb.from("testimonials").select("*").eq("business_id", BUSINESS_ID).eq("is_published", true).order("rating", { ascending: false }).limit(3),
+      sb.from("testimonials").select("*").eq("business_id", BUSINESS_ID).eq("is_published", true).order("rating", { ascending: false }).limit(6),
     ]);
     const heroValue = (heroRes.data?.value ?? {}) as Record<string, unknown>;
+    const testimonials = (testiRes.data ?? []) as TestimonialRow[];
+    const ratings = testimonials.map((t) => t.rating).filter((r) => r > 0);
     return {
       hero: {
         title: typeof heroValue.title === "string" ? heroValue.title : HERO_FALLBACK.title,
@@ -31,7 +34,8 @@ async function getHomeData() {
         cta: typeof heroValue.cta === "string" ? heroValue.cta : HERO_FALLBACK.cta,
       },
       packages: (pkgRes.data ?? []) as PackageRow[],
-      testimonials: (testiRes.data ?? []) as TestimonialRow[],
+      testimonials,
+      rating: ratings.length ? { avg: Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10, count: ratings.length } : null,
     };
   } catch {
     return fallback;
@@ -53,54 +57,92 @@ const MENGAPA = [
 ];
 
 export default async function HomePage() {
-  const { hero, packages, testimonials } = await getHomeData();
-  const cheapest = packages.length ? Math.min(...packages.map((p) => p.base_price_per_pax)) : null;
+  const { hero, packages, testimonials, rating } = await getHomeData();
   const wa = waLink(CONTACT_FALLBACK.whatsapp, "Halo Rasa Nusantara Catering, saya ingin minta penawaran.");
 
   return (
     <>
-      {/* Hero sinematik foto kuliner */}
-      <section className="relative overflow-hidden bg-bark-ink text-cream" aria-labelledby="tajuk-utama">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={HERO_IMG}
-          alt="Hidangan prasmanan Rasa Nusantara"
-          className="absolute inset-0 h-full w-full object-cover opacity-45"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-bark-ink/90 via-bark-ink/60 to-transparent" aria-hidden="true" />
-        <div className="container-x relative py-16 md:py-24">
-          <p className="kicker !text-caramel">Edisi Nganjuk · Jawa Timur — Katering Hajatan</p>
-          <h1 id="tajuk-utama" className="mt-3 max-w-2xl font-display text-4xl font-bold leading-[1.08] sm:text-5xl">
-            {hero.title}
-          </h1>
-          <p className="mt-4 max-w-xl text-lg leading-relaxed text-cream/80">{hero.subtitle}</p>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Link href="/booking" className="btn-gold">
-              {hero.cta}
-            </Link>
-            <Link href="/paket" className="btn-outline !border-cream/40 !text-cream hover:!border-cream">
-              Lihat Paket &amp; Harga
-            </Link>
+      {/* Hero mockup: headline kiri, foto arch + kartu rating kanan */}
+      <section className="overflow-hidden bg-cream" aria-labelledby="tajuk-utama">
+        <div className="container-x grid items-center gap-10 py-12 md:grid-cols-2 md:py-16">
+          <div>
+            <p className="kicker">Katering Berkualitas</p>
+            <h1 id="tajuk-utama" className="mt-3 font-display text-4xl font-bold leading-[1.08] sm:text-5xl">
+              {hero.title}
+            </h1>
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/75">{hero.subtitle}</p>
+            <form action="/paket" method="get" role="search" aria-label="Cari paket" className="mt-6 flex max-w-xl flex-col gap-2 rounded-brand border border-line bg-white p-2 shadow-sm sm:flex-row">
+              <label htmlFor="hero-q" className="sr-only">Cari paket catering</label>
+              <input id="hero-q" name="q" type="search" placeholder="Cari paket catering…" className="field !border-0 !bg-transparent" autoComplete="off" />
+              <button type="submit" className="btn-gold shrink-0">
+                Cari Paket
+              </button>
+            </form>
+            <div className="mt-4 flex flex-wrap gap-2" aria-label="Kategori cepat">
+              {CATEGORIES.map((c) => (
+                <Link key={c.label} href={`/paket?kat=${encodeURIComponent(c.label)}`} className="chip !py-1.5 !text-[13px]">
+                  {c.label}
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link href="/booking" className="btn-gold">
+                {hero.cta}
+              </Link>
+              <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline">
+                Chat WhatsApp
+              </a>
+            </div>
           </div>
-          <dl className="mt-8 flex flex-wrap gap-x-8 gap-y-2 text-sm">
-            <div><dt className="text-cream/60">Mulai</dt><dd className="font-bold">{cheapest ? `${formatIDR(cheapest)}/pax` : "—"}</dd></div>
-            <div><dt className="text-cream/60">Tanda jadi</dt><dd className="font-bold">DP minimal 30%</dd></div>
-            <div><dt className="text-cream/60">Wilayah</dt><dd className="font-bold">Nganjuk &amp; sekitarnya</dd></div>
-          </dl>
+          <div className="relative mx-auto w-full max-w-md">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={HERO_IMG}
+              alt="Hidangan prasmanan Rasa Nusantara"
+              className="h-[420px] w-full rounded-b-brand rounded-t-[999px] border-4 border-white object-cover shadow-xl sm:h-[480px]"
+              loading="eager"
+            />
+            {rating ? (
+              <div className="absolute -left-3 bottom-8 rounded-brand border border-line bg-white/95 px-4 py-3 text-center shadow-lg backdrop-blur sm:-left-8" role="status" aria-label={`Rating ${rating.avg} dari ${rating.count} testimoni`}>
+                <p className="font-display text-3xl font-bold text-bark-deep">{rating.avg.toLocaleString("id-ID")}</p>
+                <p className="text-xs font-bold text-gold">{"★".repeat(Math.round(rating.avg))}</p>
+                <p className="mt-0.5 text-xs text-muted">{rating.count} testimoni pelanggan</p>
+              </div>
+            ) : null}
+          </div>
         </div>
       </section>
 
       {/* Kategori ala marketplace */}
-      <section className="container-x py-8" aria-label="Kategori catering">
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {CATEGORIES.map((c) => (
-            <Link key={c.label} href={`/paket?kat=${encodeURIComponent(c.label)}`} className="chip">
-              {c.label}
-            </Link>
-          ))}
-          <Link href="/lacak" className="chip">Lacak Pesanan →</Link>
+      <section className="container-x py-10" aria-labelledby="kategori">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="kicker">Kategori Catering</p>
+            <h2 id="kategori" className="mt-2 font-display text-2xl font-bold sm:text-3xl">Temukan paket sesuai acara Anda</h2>
+          </div>
+          <Link href="/paket" className="touch inline-flex items-center text-sm font-bold text-gold-deep underline">
+            Lihat Semua →
+          </Link>
         </div>
+        <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: "Prasmanan", img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=500&q=60", desc: "Untuk acara besar" },
+            { label: "Nasi Box", img: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=500&q=60", desc: "Praktis & hemat" },
+            { label: "Pengajian", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=500&q=60", desc: "Hangat kekeluargaan" },
+            { label: "Premium", img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=500&q=60", desc: "Kelas istimewa" },
+          ].map((c) => (
+            <li key={c.label}>
+              <Link href={`/paket?kat=${encodeURIComponent(c.label)}`} className="food-card group block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={c.img} alt={c.label} loading="lazy" className="!h-28 sm:!h-32" />
+                <span className="block p-3">
+                  <span className="block text-sm font-bold group-hover:text-gold-deep">{c.label}</span>
+                  <span className="block text-xs text-muted">{c.desc}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* Paket populer */}
@@ -164,44 +206,22 @@ export default async function HomePage() {
       {/* Testimoni */}
       <section className="container-x pb-12" aria-labelledby="kata-mereka">
         <p className="kicker">Kata Mereka</p>
-        <h2 id="kata-mereka" className="mt-2 font-display text-3xl font-bold">Cerita dari meja prasmanan</h2>
-        {testimonials.length ? (
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <figure key={t.id} className="card flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-bark font-display text-lg font-bold text-cream" aria-hidden="true">
-                    {t.customer_name.charAt(0)}
-                  </span>
-                  <span>
-                    <span className="block font-bold">{t.customer_name}</span>
-                    <span className="text-gold" aria-label={`Nilai ${t.rating} dari 5`}>
-                      {"★".repeat(t.rating)}{"☆".repeat(5 - t.rating)}
-                    </span>
-                  </span>
-                </div>
-                <blockquote className="font-display text-lg italic leading-relaxed">“{t.message}”</blockquote>
-                {t.event_type ? <figcaption className="mt-auto pt-2 text-sm text-muted">{t.event_type}</figcaption> : null}
-              </figure>
-            ))}
-          </div>
-        ) : (
-          <p className="card mt-6 text-sm text-ink/70" role="status">Testimoni pelanggan segera tampil di sini.</p>
-        )}
+        <h2 id="kata-mereka" className="mt-2 text-center font-display text-3xl font-bold">Yang Mereka Katakan</h2>
+        <TestimonialCarousel items={testimonials} />
       </section>
 
-      {/* Pita CTA cokelat */}
+      {/* Pita CTA */}
       <section className="container-x pb-12" aria-labelledby="cta-akhir">
-        <div className="rounded-brand bg-bark px-6 py-10 text-center text-cream sm:px-12">
+        <div className="rounded-brand bg-caramel px-6 py-10 text-center text-bark-ink sm:px-12">
           <h2 id="cta-akhir" className="font-display text-3xl font-bold">Siap Mengadakan Acara Spesial?</h2>
-          <p className="mx-auto mt-2 max-w-xl text-cream/75">Ceritakan tanggal &amp; jumlah tamu — penawaran tertulis menyusul via WhatsApp.</p>
+          <p className="mx-auto mt-2 max-w-xl text-bark-ink/75">Ceritakan tanggal &amp; jumlah tamu — penawaran tertulis menyusul via WhatsApp.</p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/booking" className="touch inline-flex items-center justify-center rounded-brand bg-cream px-6 py-3 font-semibold text-bark-deep hover:bg-white">
-              Minta Penawaran
+            <Link href="/paket" className="touch inline-flex items-center justify-center rounded-brand bg-bark-ink px-6 py-3 font-semibold text-cream hover:bg-ink">
+              Lihat Paket
             </Link>
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="touch inline-flex items-center justify-center rounded-brand border border-cream/50 px-6 py-3 font-semibold text-cream hover:bg-cream/10">
-              Chat WhatsApp
-            </a>
+            <Link href="/booking" className="touch inline-flex items-center justify-center rounded-brand border-2 border-bark-ink/70 px-6 py-3 font-semibold text-bark-ink hover:bg-bark-ink hover:text-cream">
+              Konsultasi
+            </Link>
           </div>
         </div>
       </section>

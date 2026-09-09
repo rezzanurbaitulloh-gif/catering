@@ -177,6 +177,19 @@ export default function BookingForm({ tipeList, paketAwal }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
+      <ol className="flex flex-wrap gap-1.5" aria-label="Langkah pemesanan">
+        {[
+          { label: "Kontak", done: nama.trim().length >= 3 && /^(\+62|62|0)8/.test(phone.trim()) },
+          { label: "Jadwal", done: /^\d{4}-\d{2}-\d{2}$/.test(tanggal) },
+          { label: "Tamu", done: Number.isInteger(Number(pax)) && Number(pax) > 0 },
+          { label: "Diet", done: true },
+          { label: "Kirim", done: false },
+        ].map((s, i) => (
+          <li key={s.label} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${s.done ? "bg-bark text-cream" : "bg-line/60 text-muted"}`} aria-current={s.done ? undefined : "step"}>
+            <span aria-hidden="true">{i + 1}</span> {s.label}
+          </li>
+        ))}
+      </ol>
       {Object.keys(errors).length ? (
         <p id="form-error-ringkas" tabIndex={-1} className="rounded-brand border border-[#B91C1C]/40 bg-[#B91C1C]/5 p-3 text-sm font-semibold text-[#B91C1C]" role="alert">
           Ada {Object.keys(errors).length} isian yang perlu diperbaiki di bawah.

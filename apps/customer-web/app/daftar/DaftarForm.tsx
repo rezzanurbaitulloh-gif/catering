@@ -8,7 +8,7 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 
 // Pendaftaran: Auth user + baris customers terhubung (auth_user_id).
 // Nomor HP dipakai menautkan riwayat lama (klaim saat checkout).
-export default function DaftarForm() {
+export default function DaftarForm({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const [nama, setNama] = useState("");
   const [phone, setPhone] = useState("");
@@ -84,9 +84,11 @@ export default function DaftarForm() {
       <button type="submit" className="btn-gold w-full" disabled={busy}>
         {busy ? "Mendaftar…" : "Daftar"}
       </button>
-      <p className="text-sm text-center">
-        Sudah punya akun? <Link href="/masuk" className="font-bold text-gold-deep underline">Masuk</Link>
-      </p>
+      {compact ? null : (
+        <p className="text-sm text-center">
+          Sudah punya akun? <Link href="/masuk" className="font-bold text-gold-deep underline">Masuk</Link>
+        </p>
+      )}
     </form>
   );
 }

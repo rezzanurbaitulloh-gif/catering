@@ -62,6 +62,7 @@ export default function DashboardPanel() {
   const [crMsg, setCrMsg] = useState("");
   const [fb, setFb] = useState({ event_id: "", category: "Layanan", message: "" });
   const [fbMsg, setFbMsg] = useState("");
+  const [tab, setTab] = useState<"SEMUA" | "AKTIF" | "SELESAI">("SEMUA");
 
   const load = useCallback(async () => {
     if (!customer) return;
@@ -123,6 +124,7 @@ export default function DashboardPanel() {
 
   const active = events.filter((e) => !["COMPLETED", "CLOSED"].includes(e.status));
   const history = events.filter((e) => ["COMPLETED", "CLOSED"].includes(e.status));
+  const shown = tab === "AKTIF" ? active : tab === "SELESAI" ? history : events;
 
   async function submitCR(e: React.FormEvent) {
     e.preventDefault();
@@ -208,14 +210,28 @@ export default function DashboardPanel() {
 
   return (
     <div className="space-y-6">
-      <section aria-labelledby="aktif">
-        <h2 id="aktif" className="font-display text-xl font-bold">Acara aktif ({active.length})</h2>
-        {active.length === 0 ? (
-          <p className="mt-2 rounded-brand border border-line bg-white p-4 text-sm text-muted">
-            Belum ada acara berjalan. <Link href="/booking" className="font-bold text-gold-deep underline">Buat permintaan</Link>
+      <div className="flex gap-2" role="tablist" aria-label="Filter pesanan">
+        {(["SEMUA", "AKTIF", "SELESAI"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            role="tab"
+            aria-selected={tab === t}
+            onClick={() => setTab(t)}
+            className={`chip ${tab === t ? "chip-active" : ""}`}
+          >
+            {t === "SEMUA" ? `Semua (${events.length})` : t === "AKTIF" ? `Aktif (${active.length})` : `Selesai (${history.length})`}
+          </button>
+        ))}
+      </div>
+      <section aria-labelledby="acara">
+        <h2 id="acara" className="sr-only">Daftar pesanan</h2>
+        {shown.length === 0 ? (
+          <p className="rounded-brand border border-line bg-white p-4 text-sm text-muted">
+            {tab === "SEMUA" ? (<>Belum ada pesanan. <Link href="/booking" className="font-bold text-gold-deep underline">Buat permintaan</Link></>) : "Tidak ada pesanan pada tab ini."}
           </p>
         ) : (
-          <div className="mt-3 space-y-3">{active.map(eventBlock)}</div>
+          <div className="space-y-3">{shown.map(eventBlock)}</div>
         )}
       </section>
 
@@ -274,14 +290,6 @@ export default function DashboardPanel() {
         {fbMsg ? <p className="mt-2 text-sm" role="status">{fbMsg}</p> : null}
       </section>
 
-      <section aria-labelledby="riwayat">
-        <h2 id="riwayat" className="font-display text-xl font-bold">Riwayat ({history.length})</h2>
-        {history.length === 0 ? (
-          <p className="mt-2 text-sm text-muted">Belum ada acara selesai.</p>
-        ) : (
-          <div className="mt-3 space-y-3">{history.map(eventBlock)}</div>
-        )}
-      </section>
     </div>
   );
 }

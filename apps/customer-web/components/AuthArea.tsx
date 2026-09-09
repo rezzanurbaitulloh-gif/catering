@@ -16,8 +16,8 @@ export default function AuthArea() {
         <Link href="/masuk" className="touch hidden items-center px-3 text-sm font-semibold text-ink/80 hover:text-gold-deep sm:inline-flex">
           Masuk
         </Link>
-        <Link href="/akun" className="touch hidden items-center px-3 text-sm font-semibold text-ink/80 hover:text-gold-deep sm:inline-flex">
-          Akun Saya
+        <Link href="/daftar" className="btn-gold !px-5 !py-2.5 text-sm">
+          Daftar
         </Link>
       </>
     );

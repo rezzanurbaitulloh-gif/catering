@@ -110,13 +110,30 @@ export default function ProfilePanel() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="grid gap-5 md:grid-cols-[200px_1fr]">
+      <nav aria-label="Pengaturan akun" className="h-fit rounded-brand border border-line bg-white p-2 text-sm md:sticky md:top-24">
+        {[
+          ["#profil", "Profil Saya"],
+          ["#alamat", "Alamat Saya"],
+        ].map(([href, label]) => (
+          <a key={href} href={href} className="touch flex items-center rounded-lg px-3 hover:bg-gold-soft">
+            {label}
+          </a>
+        ))}
+        <Link href="/akun" className="touch flex items-center rounded-lg px-3 hover:bg-gold-soft">
+          Riwayat Pesanan
+        </Link>
+        <button type="button" onClick={() => supabaseBrowser()?.auth.signOut().then(() => window.location.assign("/"))} className="touch flex w-full items-center rounded-lg px-3 text-left hover:bg-gold-soft">
+          Keluar
+        </button>
+      </nav>
+      <div className="space-y-5">
       {msg ? (
         <p role={msg.kind === "err" ? "alert" : "status"} className={`rounded-brand border p-3 text-sm ${msg.kind === "err" ? "border-[#B91C1C]/40 bg-[#B91C1C]/5 text-[#B91C1C]" : "border-[#15803D]/40 bg-[#15803D]/5 text-[#15803D]"}`}>
           {msg.text}
         </p>
       ) : null}
-      <section className="rounded-brand border border-line bg-white p-4">
+      <section id="profil" className="rounded-brand border border-line bg-white p-4">
         <h2 className="font-display text-lg font-bold">Data diri</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <div>
@@ -134,7 +151,7 @@ export default function ProfilePanel() {
         </button>
       </section>
 
-      <section className="rounded-brand border border-line bg-white p-4">
+      <section id="alamat" className="rounded-brand border border-line bg-white p-4">
         <h2 className="font-display text-lg font-bold">Alamat saya ({addrs.length})</h2>
         <p className="text-xs text-muted">Untuk pengiriman & referensi. Lokasi tiap acara dicatat terpisah dan tidak ikut berubah.</p>
         <ul className="mt-3 space-y-2">
@@ -157,6 +174,7 @@ export default function ProfilePanel() {
           <button type="button" onClick={addAddr} disabled={busy} className="btn-outline">+ Alamat</button>
         </div>
       </section>
+      </div>
     </div>
   );
 }
