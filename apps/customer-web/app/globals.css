@@ -46,7 +46,7 @@ body {
     @apply mb-1.5 block text-sm font-semibold text-ink;
   }
   .btn-gold {
-    @apply touch inline-flex items-center justify-center gap-2 rounded-brand bg-gold px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-gold-deep disabled:cursor-not-allowed disabled:opacity-60;
+    @apply touch inline-flex items-center justify-center gap-2 rounded-brand bg-bark px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-bark-deep disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-outline {
     @apply touch inline-flex items-center justify-center gap-2 rounded-brand border border-ink/25 bg-transparent px-6 py-3 text-base font-semibold text-ink transition-colors hover:border-gold hover:text-gold-deep disabled:cursor-not-allowed disabled:opacity-60;
@@ -59,6 +59,23 @@ body {
   }
   .rule-gold {
     @apply h-px w-16 bg-gold;
+  }
+  /* Chip kategori ala marketplace kuliner */
+  .chip {
+    @apply touch inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-semibold text-ink/80 transition-colors hover:border-gold hover:text-gold-deep;
+  }
+  .chip-active {
+    @apply border-bark bg-bark text-white hover:text-white;
+  }
+  /* Kartu foto kuliner */
+  .food-card {
+    @apply overflow-hidden rounded-brand border border-line bg-white transition-shadow hover:shadow-lg;
+  }
+  .food-card img {
+    @apply h-44 w-full object-cover transition-transform duration-500;
+  }
+  .food-card:hover img {
+    @apply scale-105;
   }
   .error-text {
     @apply mt-1 text-sm font-medium text-[#B91C1C];

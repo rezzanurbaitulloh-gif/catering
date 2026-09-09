@@ -59,6 +59,15 @@ export default async function PaketDetailPage({ params }: Props) {
         <div>
           <p className="kicker">Detail Paket</p>
           <h1 className="mt-2 font-display text-4xl font-bold leading-tight">{pkg.name}</h1>
+          {pkg.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={pkg.image_url}
+              alt={pkg.name}
+              className="mt-4 h-64 w-full rounded-brand object-cover sm:h-80"
+              loading="eager"
+            />
+          ) : null}
           <p className="mt-3 text-lg leading-relaxed text-ink/75">{pkg.description ?? "—"}</p>
           <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-2 border-y border-line py-4 text-sm">
             <div><dt className="text-muted">Harga dasar</dt><dd className="font-display text-2xl font-bold text-gold-deep">{formatIDR(pkg.base_price_per_pax)}<span className="font-body text-xs font-normal text-muted"> /pax</span></dd></div>

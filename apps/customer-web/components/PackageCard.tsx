@@ -2,34 +2,41 @@ import Link from "next/link";
 import { formatIDR } from "@/lib/format";
 import type { PackageRow } from "@/lib/types";
 
+// Kartu paket ala marketplace kuliner: foto, harga, min pax, CTA cokelat.
 export default function PackageCard({ pkg }: { pkg: PackageRow }) {
   return (
-    <article className="card flex flex-col gap-3 transition-shadow hover:shadow-md">
-      <div>
-        <p className="kicker">Paket</p>
-        <h3 className="mt-1 font-display text-xl font-bold leading-snug">
+    <article className="food-card flex flex-col">
+      <Link href={`/paket/${pkg.id}`} className="block overflow-hidden" aria-label={`Lihat detail ${pkg.name}`}>
+        {pkg.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={pkg.image_url} alt={pkg.name} loading="lazy" />
+        ) : (
+          <div className="flex h-44 w-full items-center justify-center bg-gold-soft font-display text-4xl" aria-hidden="true">
+            🍽
+          </div>
+        )}
+      </Link>
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <h3 className="font-display text-lg font-bold leading-snug">
           <Link href={`/paket/${pkg.id}`} className="hover:text-gold-deep">
             {pkg.name}
           </Link>
         </h3>
+        {pkg.description ? <p className="line-clamp-2 text-sm leading-relaxed text-ink/70">{pkg.description}</p> : null}
+        <div className="mt-auto flex items-end justify-between border-t border-line pt-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-muted">Mulai dari</p>
+            <p className="font-display text-xl font-bold text-bark-deep">
+              {formatIDR(pkg.base_price_per_pax)}
+              <span className="font-body text-xs font-normal text-muted"> /pax</span>
+            </p>
+          </div>
+          <p className="text-xs text-muted">Min. {pkg.min_pax} pax</p>
+        </div>
+        <Link href={`/paket/${pkg.id}`} className="btn-gold w-full !py-2.5 text-sm" aria-label={`Lihat detail ${pkg.name}`}>
+          Lihat &amp; Hitung
+        </Link>
       </div>
-      {pkg.description ? <p className="text-sm leading-relaxed text-ink/70">{pkg.description}</p> : null}
-      <dl className="mt-auto flex items-end justify-between border-t border-line pt-3">
-        <div>
-          <dt className="text-xs uppercase tracking-wider text-muted">Mulai dari</dt>
-          <dd className="font-display text-2xl font-bold text-gold-deep">
-            {formatIDR(pkg.base_price_per_pax)}
-            <span className="font-body text-xs font-normal text-muted"> /pax</span>
-          </dd>
-        </div>
-        <div className="text-right text-xs text-muted">
-          <p>Min. {pkg.min_pax} pax</p>
-          {pkg.max_pax ? <p>Maks. {pkg.max_pax} pax</p> : null}
-        </div>
-      </dl>
-      <Link href={`/paket/${pkg.id}`} className="btn-outline w-full text-sm" aria-label={`Lihat detail ${pkg.name}`}>
-        Lihat Detail &amp; Hitung Estimasi
-      </Link>
     </article>
   );
 }

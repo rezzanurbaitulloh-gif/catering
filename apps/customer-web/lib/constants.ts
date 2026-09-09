@@ -12,6 +12,17 @@ export const SITE = {
   locale: "id_ID",
 } as const;
 
+// Foto kuliner terverifikasi (Unsplash, relevan konteks). image_url DB diutamakan.
+export const HERO_IMG =
+  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=70";
+
+export const CATEGORIES = [
+  { label: "Prasmanan", match: ["nikah", "mantu", "premium", "prasmanan"] },
+  { label: "Nasi Box", match: ["korporat", "box", "rapat", "kantor"] },
+  { label: "Pengajian", match: ["pengajian", "tasyakur", "berkah"] },
+  { label: "Premium", match: ["premium", "eksklusif"] },
+] as const;
+
 export const CONTACT_FALLBACK = {
   whatsapp: "+6281234567890",
   phone: "(0358) 321-456",

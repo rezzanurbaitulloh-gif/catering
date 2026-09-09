@@ -127,11 +127,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen md:flex">
-      {/* Sidebar desktop */}
-      <aside className="hidden md:flex md:w-60 md:shrink-0 md:flex-col md:sticky md:top-0 md:h-screen border-r border-line bg-paper px-4 py-5 overflow-y-auto">
+      {/* Sidebar desktop — cokelat gelap ala dashboard katering */}
+      <aside className="hidden md:flex md:w-60 md:shrink-0 md:flex-col md:sticky md:top-0 md:h-screen border-r border-[#3A2415] bg-[#241610] text-cream px-4 py-5 overflow-y-auto">
         <Link href="/dashboard" className="mb-1">
-          <p className="font-display text-[20px] leading-tight">Rasa Nusantara</p>
-          <p className="muted">Pusat Komando</p>
+          <p className="font-display text-[20px] leading-tight text-cream">Rasa Nusantara</p>
+          <p className="text-[13px] text-cream/60">Pusat Komando</p>
         </Link>
         <div className="mt-2">
           <ModeSwitch />
@@ -141,7 +141,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             Login untuk aksi penuh
           </Link>
         ) : (
-          <p className="muted mt-3 truncate">{user?.email ?? 'Koordinator'}</p>
+          <p className="text-cream/60 mt-3 truncate text-[13px]">{user?.email ?? 'Koordinator'}</p>
         )}
         <nav className="mt-4 flex flex-col gap-4">
           {GROUPS.map((g) => {
@@ -149,7 +149,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             if (items.length === 0) return null;
             return (
               <div key={g.title}>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-muted mb-1.5">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-cream/45 mb-1.5">
                   {g.title}
                 </p>
                 <div className="flex flex-col gap-0.5">
@@ -158,7 +158,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                       key={i.href}
                       href={i.href}
                       className={`rounded-[10px] px-3 py-2 text-[15px] font-medium ${
-                        active(i.href, path) ? 'bg-ink text-cream' : 'hover:bg-goldsoft'
+                        active(i.href, path) ? 'bg-gold text-white' : 'text-cream/80 hover:bg-white/10 hover:text-cream'
                       }`}
                     >
                       {i.label}

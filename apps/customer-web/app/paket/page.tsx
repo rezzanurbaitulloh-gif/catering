@@ -28,7 +28,7 @@ async function getPackages(): Promise<PackageRow[]> {
   }
 }
 
-export default async function PaketPage() {
+export default async function PaketPage({ searchParams }: { searchParams: { kat?: string } }) {
   const packages = await getPackages();
   return (
     <div className="container-x py-10">
@@ -39,7 +39,7 @@ export default async function PaketPage() {
         Semua harga per pax dan dapat disesuaikan. Buka detail paket untuk melihat isi menu, tambahan (add-on),
         dan menghitung estimasi sesuai jumlah tamu Anda.
       </p>
-      <PaketFilter initial={packages} />
+      <PaketFilter initial={packages} initialKat={searchParams.kat ?? ""} />
     </div>
   );
 }
