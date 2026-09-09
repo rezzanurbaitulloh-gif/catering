@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
-import AccountPanel from "./AccountPanel";
+import DashboardPanel from "./DashboardPanel";
 
 export const metadata: Metadata = {
   title: "Akun Saya",
-  description: "Lihat acara, penawaran, dan status pembayaran Anda.",
+  description: "Dashboard pelanggan: acara, pembayaran, invoice, progres, riwayat.",
 };
 
 export default function AkunPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-10">
       <p className="kicker">Akun pelanggan</p>
-      <h1 className="mt-2 font-display text-3xl font-bold">Acara &amp; Penawaran Saya</h1>
-      <p className="mt-2 text-sm text-ink/70">Masuk dengan nomor WhatsApp yang dipakai saat memesan.</p>
+      <h1 className="mt-2 font-display text-3xl font-bold">Dashboard Saya</h1>
       <div className="mt-6">
-        <AccountPanel />
+        <DashboardPanel />
       </div>
     </div>
   );

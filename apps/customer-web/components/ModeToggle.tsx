@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { BUSINESS_ID } from "@/lib/constants";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -30,6 +30,7 @@ function detect(caps: Array<{ capability: string; enabled: boolean }>): Mode {
 // Toggle mode PUBLIK di header: siapa pun boleh ubah (keputusan pemilik),
 // perubahan tersiar realtime ke semua web yang terbuka (customer + admin).
 export default function ModeToggle() {
+  const mountId = useId().replace(/[^a-zA-Z0-9]/g, "");
   const [caps, setCaps] = useState<Array<{ capability: string; enabled: boolean }>>([]);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -50,7 +51,7 @@ export default function ModeToggle() {
     if (!sb) return;
     // Dengarkan perubahan mode dari web mana pun → ikut berubah tanpa refresh.
     const ch = sb
-      .channel("mode-sync")
+      .channel(`mode-sync-${mountId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "business_capabilities", filter: `business_id=eq.${BUSINESS_ID}` },
@@ -63,7 +64,7 @@ export default function ModeToggle() {
       window.removeEventListener("focus", onFocus);
       sb.removeChannel(ch);
     };
-  }, [load]);
+  }, [load, mountId]);
 
   async function setMode(premium: boolean) {
     const sb = supabaseBrowser();

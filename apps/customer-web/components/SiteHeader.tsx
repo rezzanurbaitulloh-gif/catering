@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AuthArea from "./AuthArea";
 import ModeToggle from "./ModeToggle";
 
 const NAV: Array<{ href: string; label: string }> = [
@@ -25,9 +26,7 @@ export default function SiteHeader() {
         </Link>
         <div className="flex items-center gap-2">
           <ModeToggle />
-          <Link href="/akun" className="touch hidden items-center px-3 text-sm font-semibold text-ink/80 hover:text-gold-deep sm:inline-flex">
-            Akun Saya
-          </Link>
+          <AuthArea />
           <Link href="/booking" className="btn-gold !px-5 !py-2.5 text-sm">
             Minta Penawaran
           </Link>

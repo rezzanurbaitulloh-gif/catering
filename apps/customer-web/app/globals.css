@@ -64,3 +64,24 @@ body {
     @apply mt-1 text-sm font-medium text-[#B91C1C];
   }
 }
+
+/* Cetak dokumen (invoice/penawaran): hanya lembar dokumen yang keluar. */
+@media print {
+  header,
+  footer,
+  nav,
+  .print-hide,
+  a[href*="wa.me"] {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .invoice-sheet {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  main {
+    min-height: auto !important;
+  }
+}

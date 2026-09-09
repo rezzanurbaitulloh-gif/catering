@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ALLERGY_OPTIONS } from "@/lib/constants";
+import { ALLERGY_OPTIONS, BUSINESS_ID } from "@/lib/constants";
 import { clearCart, readCart, type CartSelection } from "@/lib/cart";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 import type { PackageRow } from "@/lib/types";
 
 function todayPlus(days: number): string {
@@ -78,23 +79,65 @@ export default function BookingForm({ tipeList, paketAwal }: Props) {
     setState("sending");
     setFailMsg("");
     const catatanFull = [cartSummary, catatan.trim()].filter(Boolean).join("\n");
+    const payload = {
+      nama: nama.trim(),
+      phone: phone.trim(),
+      tanggal,
+      tipeAcara,
+      pax: paxN,
+      venue: venue.trim(),
+      catatan: catatanFull,
+      vegetarian: vegN,
+      vegan: veganN,
+      allergies,
+      dietaryNotes: dietaryNotes.trim(),
+    };
     try {
+      // Bila login + profil tertaut: catat sebagai inquiry milik akun (customer_id terisi).
+      // Selain itu (anonim / belum tertaut): lewat API publik.
+      const sb = supabaseBrowser();
+      const { data: sess } = await sb?.auth.getSession() ?? { data: { session: null } };
+      let linkedId: string | null = null;
+      if (sess?.session && sb) {
+        const { data: me } = await sb
+          .from("customers")
+          .select("id")
+          .eq("auth_user_id", sess.session.user.id)
+          .maybeSingle();
+        linkedId = (me as { id: string } | null)?.id ?? null;
+      }
+      if (linkedId && sb) {
+        const { data: ins, error: insErr } = await sb
+          .from("inquiries")
+          .insert({
+            business_id: BUSINESS_ID,
+            customer_id: linkedId,
+            contact_name: payload.nama,
+            contact_phone: payload.phone,
+            event_type: payload.tipeAcara,
+            event_date: tanggal || null,
+            venue_text: payload.venue || null,
+            pax: payload.pax,
+            menu_notes: payload.catatan || null,
+            vegetarian: payload.vegetarian,
+            vegan: payload.vegan,
+            allergies: payload.allergies,
+            dietary_notes: payload.dietaryNotes || null,
+            status: "NEW",
+          })
+          .select("id")
+          .single();
+        if (insErr || !ins) throw new Error("Gagal menyimpan. Coba lagi.");
+        setInquiryId((ins as { id: string }).id);
+        clearCart();
+        setState("done");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
       const res = await fetch("/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nama: nama.trim(),
-          phone: phone.trim(),
-          tanggal,
-          tipeAcara,
-          pax: paxN,
-          venue: venue.trim(),
-          catatan: catatanFull,
-          vegetarian: vegN,
-          vegan: veganN,
-          allergies,
-          dietaryNotes: dietaryNotes.trim(),
-        }),
+        body: JSON.stringify(payload),
       });
       const data = (await res.json()) as { id?: string; error?: string; details?: Array<{ message?: string }> };
       if (!res.ok) {

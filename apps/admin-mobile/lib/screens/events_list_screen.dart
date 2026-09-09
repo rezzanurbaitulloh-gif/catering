@@ -142,9 +142,21 @@ class _EventsListScreenState extends State<EventsListScreen> {
                         ),
                       ),
                     )
-                  : RefreshIndicator(
-                      onRefresh: _load,
-                      child: ListView.builder(
+                    : RefreshIndicator(
+                        onRefresh: _load,
+                        child: _visible.isEmpty
+                            ? ListView(
+                                padding: const EdgeInsets.all(24),
+                                children: const [
+                                  Center(
+                                    child: Text(
+                                      'Tidak ada event pada filter ini.',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : ListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: _visible.length,
                         itemBuilder: (context, i) {

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase';
 import { useBusiness } from '@/lib/session';
 import { PREMIUM_CAPABILITIES, detectMode, type ProductMode } from '@/lib/capabilities';
@@ -12,6 +12,7 @@ import { PREMIUM_CAPABILITIES, detectMode, type ProductMode } from '@/lib/capabi
 export default function ModeSwitch({ compact = false }: { compact?: boolean }) {
   const { businessId, isDemo } = useBusiness();
   const router = useRouter();
+  const mountId = useId().replace(/[^a-zA-Z0-9]/g, '');
   const [caps, setCaps] = useState<Array<{ capability: string; enabled: boolean }>>([]);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -32,9 +33,11 @@ export default function ModeSwitch({ compact = false }: { compact?: boolean }) {
     if (isDemo) return;
     load();
     // Ikut berubah saat mode diubah dari web lain (realtime + fokus).
+    // Nama channel unik per mount: channel() mengembalikan instance sama untuk
+    // nama sama, dan .on() setelah subscribe melempar error (StrictMode!).
     const sb = supabaseBrowser();
     const ch = sb
-      .channel('mode-sync')
+      .channel(`mode-sync-${mountId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'business_capabilities', filter: `business_id=eq.${businessId}` },
@@ -47,7 +50,7 @@ export default function ModeSwitch({ compact = false }: { compact?: boolean }) {
       window.removeEventListener('focus', onFocus);
       sb.removeChannel(ch);
     };
-  }, [isDemo, load, businessId]);
+  }, [isDemo, load, businessId, mountId]);
 
   if (isDemo) {
     return (

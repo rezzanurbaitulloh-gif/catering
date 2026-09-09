@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { CustomerAuthProvider } from "@/lib/auth";
 import { CONTACT_FALLBACK, SITE } from "@/lib/constants";
 import { waLink } from "@/lib/format";
 import "./globals.css";
@@ -43,11 +44,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Lewati ke konten
         </a>
-        <SiteHeader />
-        <main id="konten" className="min-h-[60vh]">
-          {children}
-        </main>
-        <SiteFooter />
+        <CustomerAuthProvider>
+          <SiteHeader />
+          <main id="konten" className="min-h-[60vh]">
+            {children}
+          </main>
+          <SiteFooter />
+        </CustomerAuthProvider>
         <a
           href={wa}
           target="_blank"

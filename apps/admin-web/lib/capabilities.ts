@@ -82,6 +82,7 @@ export const ROUTE_CAPABILITIES: Record<string, string> = {
   '/transport': 'transport_management',
   '/finance': 'basic_finance',
   '/incidents': 'basic_incidents',
+  '/notifications': 'basic_notifications',
   '/analytics': 'advanced_analytics',
 };
 

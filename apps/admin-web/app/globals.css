@@ -73,3 +73,24 @@ body {
     @apply border-b border-line py-2.5 pr-3 align-top;
   }
 }
+
+/* Cetak dokumen operasional: hanya konten utama. */
+@media print {
+  aside,
+  header,
+  nav,
+  .print-hide {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .card {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+}

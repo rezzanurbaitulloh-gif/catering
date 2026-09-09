@@ -25,8 +25,8 @@ interface TrackResult {
 }
 
 // Panel pelacakan -> GET /api/track?no=&phone= . Hanya data milik pemesan yang tampil.
-export default function TrackPanel() {
-  const [no, setNo] = useState("");
+export default function TrackPanel({ initialNo = "" }: { initialNo?: string }) {
+  const [no, setNo] = useState(initialNo);
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "loading" | "found" | "failed">("idle");

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase';
 import { useBusiness } from '@/lib/session';
@@ -44,12 +45,12 @@ function Cust() {
       </div>
       <div className="flex flex-col gap-2">
         {rows.length === 0 ? <Empty text="Belum ada pelanggan." /> : rows.map((c) => (
-          <div key={c.id} className="rowcard">
+          <Link key={c.id} href={`/customers/${c.id}`} className="rowcard hover:bg-cream">
             <div>
               <p className="font-semibold text-[15px]">{c.name} <span className="muted font-normal">· {c.phone}{c.source ? ` · ${c.source}` : ''}</span></p>
               <p className="muted">{c.event_count} event · total {rp(c.total_spent)}{c.last_event_at ? ` · terakhir ${fmtDate(c.last_event_at)}` : ''}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

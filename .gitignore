@@ -164,3 +164,11 @@ supabase/.temp
 .env
 .env.*
 !.env.example
+
+# Playwright
+playwright-report/
+test-results/
+artifacts/
+
+# E2E local secrets (never commit)
+scripts/.e2e.env

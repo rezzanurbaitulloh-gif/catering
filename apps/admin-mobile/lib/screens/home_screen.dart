@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _QuickGrid(goTab: widget.goTab),
                 const SizedBox(height: 16),
                 Text(
-                  'Event hari ini (${_events.length})',
+                  "Event hari ini (${_events.length})",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase';
 import { useBusiness } from '@/lib/session';
 import { canAccess } from '@/lib/capabilities';
@@ -53,6 +53,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { href: '/finance', label: 'Finance' },
       { href: '/incidents', label: 'Incidents' },
+      { href: '/notifications', label: 'Notifikasi' },
       { href: '/analytics', label: 'Analytics' },
       { href: '/settings', label: 'Settings' },
     ],
@@ -77,6 +78,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { businessId, isDemo, user } = useBusiness();
   const [caps, setCaps] = useState<Record<string, boolean>>({});
+  const mountId = useId().replace(/[^a-zA-Z0-9]/g, '');
 
   useEffect(() => {
     let alive = true;
@@ -100,7 +102,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     // Navigasi ikut berubah saat mode diubah dari web lain.
     const sb = supabaseBrowser();
     const ch = sb
-      .channel('nav-mode-sync')
+      .channel(`nav-mode-sync-${mountId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'business_capabilities', filter: `business_id=eq.${businessId}` },
@@ -113,7 +115,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       window.removeEventListener('focus', fetchCaps);
       sb.removeChannel(ch);
     };
-  }, [businessId]);
+  }, [businessId, mountId]);
 
   const visible = (href: string) => canAccess(href, caps);
 

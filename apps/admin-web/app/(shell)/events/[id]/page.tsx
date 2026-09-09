@@ -10,6 +10,7 @@ import { EventMachine, ProductionMachine } from '@/lib/vendored-machines';
 import { packingDiscrepancy } from '@/lib/vendored-risk';
 import type { EventRow } from '@/lib/types';
 import { PageHeader, Section, StatusPill, Loading, ErrorState, Empty, Act } from '@/components/ui';
+import QrTag from '@/components/QrTag';
 
 interface Full {
   event: EventRow & { customers?: { name: string; phone: string } | null; venues?: { name: string; address: string } | null };
@@ -106,15 +107,20 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
 
   return (
     <div>
+      <div className="print-hide">
       <PageHeader
         title={`${ev.event_no}`}
         sub={`${ev.title} · ${ev.event_type} · ${fmtDate(ev.event_date)}`}
-        action={<div className="flex gap-2">{nexts.map((n) => (
+        action={<div className="flex gap-2">
+          <button type="button" onClick={() => window.print()} className="btn-ghost !min-h-[40px] !px-3 !text-[14px] print-hide">Cetak brief</button>
+          {nexts.map((n) => (
           <Act key={n} tone="gold" disabled={isDemo || !!busy} onClick={() => act(n, () => apiJson(`/api/events/${ev.id}/transition`, { method: 'POST', body: JSON.stringify({ to: n }) }))}>
             {busy === n ? '…' : (NEXT_LABEL[n] ?? n)}
           </Act>
         ))}</div>}
       />
+      </div>
+      {err ? <p className="card border-danger/40 text-danger mb-3 text-[14px]" role="alert">{err}</p> : null}
       {err ? <p className="card border-danger/40 text-danger mb-3 text-[14px]" role="alert">{err}</p> : null}
       <div className="flex flex-wrap gap-2 mb-4">
         <StatusPill status={ev.status} />
@@ -163,6 +169,9 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
         </Section>
 
         <Section title="Menu & packing" sub="required vs packed — selisih selalu terlihat.">
+          <div className="mb-3">
+            <QrTag value={typeof window !== 'undefined' ? window.location.href : ev.id} label={`Packing ${ev.event_no} — pindai dari aplikasi lapangan`} />
+          </div>
           {d.items.length === 0 ? <Empty text="Belum ada item." hint="Tambahkan via database/admin saat setup." /> : (
             <ul className="flex flex-col gap-1.5 text-[14px]">
               {d.items.map((i) => (

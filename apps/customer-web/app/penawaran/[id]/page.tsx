@@ -5,7 +5,9 @@ import { BUSINESS_ID } from "@/lib/constants";
 import { formatIDR, formatTanggalID } from "@/lib/format";
 import { createPrivilegedClient } from "@/lib/server-db";
 import ApproveForm from "./ApproveForm";
+import CheckoutButton from "./CheckoutButton";
 import PayOnlineButton from "@/components/PayOnline";
+import PrintButton from "@/components/PrintButton";
 
 export const metadata: Metadata = { title: "Tinjau Penawaran" };
 export const dynamic = "force-dynamic";
@@ -58,6 +60,7 @@ export default async function PenawaranPage({ params }: { params: { id: string }
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <h1 className="font-display text-3xl font-bold">Tinjau Penawaran</h1>
         <StatusBadge status={q.status} />
+        <PrintButton />
       </div>
       {q.valid_until ? <p className="mt-1 text-sm text-muted">Berlaku hingga {formatTanggalID(q.valid_until)}</p> : null}
 
@@ -95,7 +98,7 @@ export default async function PenawaranPage({ params }: { params: { id: string }
         ) : null}
       </div>
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-6 space-y-4 print-hide">
         <ApproveForm
           quoteId={q.id}
           disabled={!canApprove}
@@ -105,6 +108,7 @@ export default async function PenawaranPage({ params }: { params: { id: string }
           <p className="mb-2 text-sm font-bold">Bayar DP / pelunasan daring (Midtrans)</p>
           <PayOnlineButton quoteId={q.id} />
         </div>
+        <CheckoutButton quoteId={q.id} approved={q.status === "APPROVED"} />
       </div>
     </div>
   );

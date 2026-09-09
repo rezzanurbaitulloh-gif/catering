@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Pantau status acara, pembayaran, dan jadwal Anda dengan nomor acara + nomor WhatsApp.",
 };
 
-export default function LacakPage() {
+export default function LacakPage({ searchParams }: { searchParams: { no?: string } }) {
   return (
     <div className="container-x max-w-3xl py-10">
       <p className="kicker">Pantau Sendiri</p>
@@ -17,7 +17,7 @@ export default function LacakPage() {
         <strong>nomor WhatsApp yang dipakai memesan</strong>. Hanya data milik nomor tersebut yang tampil.
       </p>
       <div className="card mt-6">
-        <TrackPanel />
+        <TrackPanel initialNo={searchParams.no ?? ""} />
       </div>
     </div>
   );
