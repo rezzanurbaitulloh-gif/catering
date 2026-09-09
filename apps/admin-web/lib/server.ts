@@ -2,10 +2,14 @@ import { createClient, type SupabaseClient, type User } from '@supabase/supabase
 
 // Helper khusus API routes (server). Klien user-scoped → RLS tetap berlaku.
 // Token diambil dari header Authorization: Bearer <jwt> yang dikirim lib/api.ts.
+// Header anti-cache: baca selalu segar (pernah ada bacaan basi di jalur edge).
+const NO_CACHE = { global: { headers: { "Cache-Control": "no-cache", Pragma: "no-cache" } } } as const;
+
 function baseClient(): SupabaseClient {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+    NO_CACHE,
   );
 }
 
@@ -40,7 +44,7 @@ export async function requireAuth(req: Request): Promise<Authed> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
-    { global: { headers: { Authorization: `Bearer ${token}` } } },
+    { global: { headers: { Authorization: `Bearer ${token}`, "Cache-Control": "no-cache", Pragma: "no-cache" } } },
   );
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data.user) throw json(401, 'Sesi tidak valid — silakan login ulang');
