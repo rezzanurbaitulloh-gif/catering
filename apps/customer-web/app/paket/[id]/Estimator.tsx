@@ -7,7 +7,8 @@ import { formatIDR } from "@/lib/format";
 import type { PackageAddonRow, PackageRow } from "@/lib/types";
 
 // Estimasi murni sisi klien (tampilan saja — harga resmi mengikuti penawaran tertulis).
-export default function Estimator({ pkg, addons }: { pkg: PackageRow; addons: PackageAddonRow[] }) {
+export default function Estimator({ pkg, addons, tanggal = "" }: { pkg: PackageRow; addons: PackageAddonRow[]; tanggal?: string }) {
+  const bookingHref = `/booking?paket=${encodeURIComponent(pkg.id)}${tanggal ? `&tanggal=${encodeURIComponent(tanggal)}` : ""}`;
   const [pax, setPax] = useState<number>(pkg.min_pax);
   const [picked, setPicked] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
@@ -38,12 +39,12 @@ export default function Estimator({ pkg, addons }: { pkg: PackageRow; addons: Pa
   }, [pax, paxValid, picked, pkg.id, pkg.name]);
 
   return (
-    <section aria-labelledby="estimasi" className="card !bg-night !text-cream">
-      <p className="kicker !text-gold-soft">Hitung Estimasi</p>
-      <h2 id="estimasi" className="mt-1 font-display text-2xl font-bold">Biaya acara Anda</h2>
+    <section aria-labelledby="estimasi" className="card">
+      <p className="kicker">Ringkasan Pesanan</p>
+      <h2 id="estimasi" className="mt-1 font-display text-2xl font-bold">Estimasi Biaya</h2>
 
-      <label htmlFor="pax" className="mt-4 block text-sm font-semibold text-cream/85">
-        Jumlah tamu (pax) <span className="font-normal text-cream/60">· min. {pkg.min_pax}</span>
+      <label htmlFor="pax" className="mt-4 block text-sm font-semibold">
+        Jumlah tamu (pax) <span className="font-normal text-muted">· min. {pkg.min_pax}</span>
       </label>
       <input
         id="pax"
@@ -53,19 +54,19 @@ export default function Estimator({ pkg, addons }: { pkg: PackageRow; addons: Pa
         max={pkg.max_pax ?? 20000}
         value={Number.isNaN(pax) ? "" : pax}
         onChange={(e) => { setPax(e.target.value === "" ? Number.NaN : Number(e.target.value)); }}
-        className="field mt-1.5 !border-cream/25 !bg-cream/10 !text-cream"
+        className="field mt-1.5"
       />
-      {!paxValid ? <p className="error-text !text-red-300" role="alert">Masukkan jumlah tamu yang valid.</p> : null}
-      {belowMin ? <p className="mt-1 text-sm text-amber-300" role="note">Di bawah minimal paket — hubungi kami untuk penyesuaian.</p> : null}
-      {aboveMax ? <p className="mt-1 text-sm text-amber-300" role="note">Melebihi maksimal paket — hubungi kami untuk penawaran khusus.</p> : null}
+      {!paxValid ? <p className="error-text" role="alert">Masukkan jumlah tamu yang valid.</p> : null}
+      {belowMin ? <p className="mt-1 text-sm text-clay" role="note">Di bawah minimal paket — hubungi kami untuk penyesuaian.</p> : null}
+      {aboveMax ? <p className="mt-1 text-sm text-clay" role="note">Melebihi maksimal paket — hubungi kami untuk penawaran khusus.</p> : null}
 
       {addons.length ? (
         <fieldset className="mt-4">
-          <legend className="text-sm font-semibold text-cream/85">Tambahan</legend>
+          <legend className="text-sm font-semibold">Tambahan</legend>
           <ul className="mt-2 space-y-2">
             {addons.map((a) => (
               <li key={a.id}>
-                <label className="touch flex cursor-pointer items-center gap-3 rounded-lg border border-cream/20 px-3 py-2 text-sm has-[:checked]:border-gold-soft has-[:checked]:bg-cream/10">
+                <label className="touch flex cursor-pointer items-center gap-3 rounded-lg border border-line bg-white px-3 py-2 text-sm has-[:checked]:border-bark has-[:checked]:bg-gold-soft">
                   <input
                     type="checkbox"
                     className="h-5 w-5 shrink-0 accent-[#B45309]"
@@ -73,7 +74,7 @@ export default function Estimator({ pkg, addons }: { pkg: PackageRow; addons: Pa
                     onChange={() => toggle(a.id)}
                   />
                   <span className="flex-1">{a.name}</span>
-                  <span className="font-semibold text-gold-soft">+{formatIDR(a.price)}{a.per_pax ? "/pax" : ""}</span>
+                  <span className="font-semibold text-bark-deep">+{formatIDR(a.price)}{a.per_pax ? "/pax" : ""}</span>
                 </label>
               </li>
             ))}
@@ -81,27 +82,27 @@ export default function Estimator({ pkg, addons }: { pkg: PackageRow; addons: Pa
         </fieldset>
       ) : null}
 
-      <dl className="mt-5 space-y-1.5 border-t border-cream/20 pt-4 text-sm" aria-live="polite">
-        <div className="flex justify-between"><dt className="text-cream/70">Paket dasar</dt><dd>{formatIDR(base)}</dd></div>
-        <div className="flex justify-between"><dt className="text-cream/70">Tambahan</dt><dd>{formatIDR(addonTotal)}</dd></div>
+      <dl className="mt-5 space-y-1.5 border-t border-line pt-4 text-sm" aria-live="polite">
+        <div className="flex justify-between"><dt className="text-muted">Paket dasar</dt><dd>{formatIDR(base)}</dd></div>
+        <div className="flex justify-between"><dt className="text-muted">Tambahan</dt><dd>{formatIDR(addonTotal)}</dd></div>
         <div className="flex justify-between pt-1 text-base font-bold">
-          <dt>Estimasi total</dt><dd className="font-display text-2xl text-gold-soft">{formatIDR(grand)}</dd>
+          <dt>Estimasi total</dt><dd className="font-display text-2xl text-bark-deep">{formatIDR(grand)}</dd>
         </div>
       </dl>
-      <p className="mt-2 text-xs leading-relaxed text-cream/60">
+      <p className="mt-2 text-xs leading-relaxed text-muted">
         Estimasi tampilan saja, bukan harga final. Harga resmi mengikuti penawaran tertulis dari tim kami.
       </p>
 
       <div className="mt-4 grid gap-2">
         <Link
-          href={`/booking?paket=${encodeURIComponent(pkg.id)}`}
+          href={bookingHref}
           className={`btn-gold w-full ${!paxValid ? "pointer-events-none opacity-60" : ""}`}
           aria-disabled={!paxValid}
         >
           Lanjut ke Booking
         </Link>
         {saved && paxValid ? (
-          <p className="text-center text-xs text-cream/60" role="status">✓ Pilihan tersimpan, otomatis terbawa ke formulir.</p>
+          <p className="text-center text-xs text-muted" role="status">✓ Pilihan tersimpan, otomatis terbawa ke formulir.</p>
         ) : null}
       </div>
 
@@ -112,7 +113,7 @@ export default function Estimator({ pkg, addons }: { pkg: PackageRow; addons: Pa
             <p className="text-xs text-muted">Estimasi</p>
             <p className="font-display text-lg font-bold text-gold-deep">{formatIDR(grand)}</p>
           </div>
-          <Link href={`/booking?paket=${encodeURIComponent(pkg.id)}`} className="btn-gold flex-1 !py-3 text-sm">
+          <Link href={bookingHref} className="btn-gold flex-1 !py-3 text-sm">
             Lanjut Booking
           </Link>
         </div>

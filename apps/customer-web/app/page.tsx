@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PackageCard from "@/components/PackageCard";
 import TestimonialCarousel from "@/components/TestimonialCarousel";
+import { ChatIcon, ChefIcon, ClockIcon, WheatIcon } from "@/components/icons";
 import { BUSINESS_ID, CATEGORIES, CONTACT_FALLBACK, HERO_IMG, HERO_FALLBACK, SITE } from "@/lib/constants";
 import { waLink } from "@/lib/format";
 import { createAnonServerClient } from "@/lib/supabase-server";
@@ -50,10 +51,10 @@ const CARA_KERJA = [
 ];
 
 const MENGAPA = [
-  { icon: "🌾", title: "Bahan Pilihan", body: "Belanja harian pasar Nganjuk, dimasak di hari-H." },
-  { icon: "⏱", title: "Tepat Waktu", body: "Jadwal keberangkatan & setup terpantau per tahap." },
-  { icon: "👨‍🍳", title: "Tim Profesional", body: "Dapur & layanan berpengalaman ratusan hajatan." },
-  { icon: "💬", title: "Layanan Konsultasi", body: "Dibantu pilih menu sesuai anggaran acara Anda." },
+  { icon: WheatIcon, title: "Bahan Pilihan", body: "Belanja harian pasar Nganjuk, dimasak di hari-H." },
+  { icon: ClockIcon, title: "Tepat Waktu", body: "Jadwal keberangkatan & setup terpantau per tahap." },
+  { icon: ChefIcon, title: "Tim Profesional", body: "Dapur & layanan berpengalaman ratusan hajatan." },
+  { icon: ChatIcon, title: "Layanan Konsultasi", body: "Dibantu pilih menu sesuai anggaran acara Anda." },
 ];
 
 export default async function HomePage() {
@@ -62,55 +63,55 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero mockup: headline kiri, foto arch + kartu rating kanan */}
-      <section className="overflow-hidden bg-cream" aria-labelledby="tajuk-utama">
-        <div className="container-x grid items-center gap-10 py-12 md:grid-cols-2 md:py-16">
-          <div>
-            <p className="kicker">Katering Berkualitas</p>
-            <h1 id="tajuk-utama" className="mt-3 font-display text-4xl font-bold leading-[1.08] sm:text-5xl">
-              {hero.title}
-            </h1>
-            <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/75">{hero.subtitle}</p>
-            <form action="/paket" method="get" role="search" aria-label="Cari paket" className="mt-6 flex max-w-xl flex-col gap-2 rounded-brand border border-line bg-white p-2 shadow-sm sm:flex-row">
-              <label htmlFor="hero-q" className="sr-only">Cari paket catering</label>
-              <input id="hero-q" name="q" type="search" placeholder="Cari paket catering…" className="field !border-0 !bg-transparent" autoComplete="off" />
-              <button type="submit" className="btn-gold shrink-0">
-                Cari Paket
-              </button>
-            </form>
-            <div className="mt-4 flex flex-wrap gap-2" aria-label="Kategori cepat">
-              {CATEGORIES.map((c) => (
-                <Link key={c.label} href={`/paket?kat=${encodeURIComponent(c.label)}`} className="chip !py-1.5 !text-[13px]">
-                  {c.label}
-                </Link>
-              ))}
-            </div>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link href="/booking" className="btn-gold">
-                {hero.cta}
+      {/* Hero full-bleed foto gelap: headline + cari + chip + kartu rating */}
+      <section className="relative overflow-hidden bg-bark-ink text-cream" aria-labelledby="tajuk-utama">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={HERO_IMG}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-bark-ink/95 via-bark-ink/70 to-bark-ink/20" aria-hidden="true" />
+        <div className="container-x relative py-14 md:py-20">
+          <p className="kicker !text-caramel">Catering Berkualitas</p>
+          <h1 id="tajuk-utama" className="mt-3 max-w-xl font-display text-4xl font-bold leading-[1.1] sm:text-5xl">
+            {hero.title}
+          </h1>
+          <p className="mt-3 max-w-xl leading-relaxed text-cream/80">{hero.subtitle}</p>
+          <form action="/paket" method="get" role="search" aria-label="Cari paket" className="mt-6 flex max-w-xl flex-col gap-2 rounded-brand bg-white p-2 shadow-xl sm:flex-row sm:items-center">
+            <label htmlFor="hero-q" className="sr-only">Cari paket catering</label>
+            <input id="hero-q" name="q" type="search" placeholder="Cari paket catering…" className="min-h-[44px] flex-1 rounded-lg bg-transparent px-4 text-ink placeholder:text-muted" autoComplete="off" />
+            <label htmlFor="hero-t" className="sr-only">Tanggal acara</label>
+            <input id="hero-t" name="tanggal" type="date" className="min-h-[44px] rounded-lg bg-transparent px-3 text-sm text-ink/70 sm:w-40" />
+            <button type="submit" className="btn-gold shrink-0">
+              Cari Paket
+            </button>
+          </form>
+          <div className="mt-4 flex flex-wrap gap-2" aria-label="Kategori cepat">
+            {CATEGORIES.map((c) => (
+              <Link key={c.label} href={`/paket?kat=${encodeURIComponent(c.label)}`} className="touch inline-flex items-center rounded-full bg-cream/15 px-4 text-sm font-semibold text-cream backdrop-blur hover:bg-cream/25">
+                {c.label}
               </Link>
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline">
-                Chat WhatsApp
-              </a>
-            </div>
+            ))}
           </div>
-          <div className="relative mx-auto w-full max-w-md">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={HERO_IMG}
-              alt="Hidangan prasmanan Rasa Nusantara"
-              className="h-[420px] w-full rounded-b-brand rounded-t-[999px] border-4 border-white object-cover shadow-xl sm:h-[480px]"
-              loading="eager"
-            />
-            {rating ? (
-              <div className="absolute -left-3 bottom-8 rounded-brand border border-line bg-white/95 px-4 py-3 text-center shadow-lg backdrop-blur sm:-left-8" role="status" aria-label={`Rating ${rating.avg} dari ${rating.count} testimoni`}>
-                <p className="font-display text-3xl font-bold text-bark-deep">{rating.avg.toLocaleString("id-ID")}</p>
-                <p className="text-xs font-bold text-gold">{"★".repeat(Math.round(rating.avg))}</p>
-                <p className="mt-0.5 text-xs text-muted">{rating.count} testimoni pelanggan</p>
-              </div>
-            ) : null}
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link href="/booking" className="btn-gold">
+              {hero.cta}
+            </Link>
+            <a href={wa} target="_blank" rel="noopener noreferrer" className="touch inline-flex items-center justify-center gap-2 rounded-brand border border-cream/40 px-6 py-3 text-base font-semibold text-cream hover:bg-cream/10">
+              Chat WhatsApp
+            </a>
           </div>
         </div>
+        {rating ? (
+          <div className="absolute bottom-5 right-5 hidden rounded-brand border border-line bg-white/95 px-4 py-3 text-center text-ink shadow-xl backdrop-blur sm:block" role="status" aria-label={`Rating ${rating.avg} dari ${rating.count} testimoni`}>
+            <p className="font-display text-2xl font-bold text-bark-deep">{rating.avg.toLocaleString("id-ID")}</p>
+            <p className="text-sm font-bold text-gold">{"★".repeat(Math.round(rating.avg))}</p>
+            <p className="mt-0.5 text-xs text-muted">{rating.count} testimoni</p>
+          </div>
+        ) : null}
       </section>
 
       {/* Kategori ala marketplace */}
@@ -177,7 +178,7 @@ export default async function HomePage() {
           <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {MENGAPA.map((m) => (
               <li key={m.title} className="flex gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold-soft text-2xl" aria-hidden="true">{m.icon}</span>
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold-soft text-bark-deep" aria-hidden="true"><m.icon /></span>
                 <span>
                   <span className="block font-bold">{m.title}</span>
                   <span className="mt-1 block text-sm leading-relaxed text-ink/70">{m.body}</span>

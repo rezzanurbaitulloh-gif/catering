@@ -8,7 +8,7 @@ const config: Config = {
         cream: "#FAF7F2",
         ink: "#1C1917",
         gold: { DEFAULT: "#B45309", soft: "#F5E6C8", deep: "#92400E" },
-        bark: { DEFAULT: "#6B3F16", deep: "#4A2C10", ink: "#2A1A0C" },
+        bark: { DEFAULT: "#7A4A1E", deep: "#5C3611", ink: "#2A1A0C" },
         caramel: "#C67C2E",
         leaf: "#3F6212",
         clay: "#9A3412",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CONTACT_FALLBACK, PAYMENT_INFO } from "@/lib/constants";
 import { waLink } from "@/lib/format";
+import { ClocheIcon } from "./icons";
 
 // Footer cokelat gelap: Menu / Layanan / Kontak (mengikuti mockup).
 export default function SiteFooter() {
@@ -10,7 +11,7 @@ export default function SiteFooter() {
       <div className="container-x grid gap-10 py-12 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <p className="flex items-center gap-2 font-display text-2xl font-bold text-cream">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-cream/10 text-lg" aria-hidden="true">🍽</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-cream/10" aria-hidden="true"><ClocheIcon className="h-5 w-5" /></span>
             RasaNusa
           </p>
           <p className="mt-2 text-sm leading-relaxed text-cream/70">

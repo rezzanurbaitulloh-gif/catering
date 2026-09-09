@@ -22,7 +22,8 @@ function matchCategory(p: PackageRow, kat: string): boolean {
 }
 
 // Katalog ala marketplace: cari + chip kategori + chip harga.
-export default function PaketFilter({ initial, initialKat = "", initialQ = "" }: { initial: PackageRow[]; initialKat?: string; initialQ?: string }) {
+export default function PaketFilter({ initial, initialKat = "", initialQ = "", initialTanggal = "" }: { initial: PackageRow[]; initialKat?: string; initialQ?: string; initialTanggal?: string }) {
+  const cardQuery = initialTanggal ? `?tanggal=${encodeURIComponent(initialTanggal)}` : "";
   const [q, setQ] = useState(initialQ);
   const [kat, setKat] = useState(initialKat);
   const [band, setBand] = useState<number>(0);
@@ -80,7 +81,7 @@ export default function PaketFilter({ initial, initialKat = "", initialQ = "" }:
       {filtered.length ? (
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {filtered.map((p) => (
-            <PackageCard key={p.id} pkg={p} />
+            <PackageCard key={p.id} pkg={p} query={cardQuery} />
           ))}
         </div>
       ) : initial.length ? (

@@ -31,7 +31,7 @@ async function getBookingRefs(paketId: string | undefined) {
   return { tipe, paket };
 }
 
-export default async function BookingPage({ searchParams }: { searchParams: { paket?: string } }) {
+export default async function BookingPage({ searchParams }: { searchParams: { paket?: string; tanggal?: string } }) {
   const { tipe, paket } = await getBookingRefs(searchParams.paket);
   const tipeList = tipe.length ? tipe : ["Pernikahan", "Korporat", "Pengajian", "Aqiqah", "Lainnya"];
   return (
@@ -44,7 +44,7 @@ export default async function BookingPage({ searchParams }: { searchParams: { pa
         penawaran tertulis. Tanda <span aria-hidden="true" className="font-bold text-clay">*</span> wajib diisi.
       </p>
       <div className="card mt-6">
-        <BookingForm tipeList={tipeList} paketAwal={paket} />
+        <BookingForm tipeList={tipeList} paketAwal={paket} initialTanggal={searchParams.tanggal ?? ""} />
       </div>
     </div>
   );

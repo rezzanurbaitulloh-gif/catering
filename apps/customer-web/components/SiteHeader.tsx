@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AuthArea from "./AuthArea";
+import { ClocheIcon } from "./icons";
 import ModeToggle from "./ModeToggle";
 
 // Navigasi utama mengikuti mockup: Beranda, Paket, Tentang Kami, Testimoni, FAQ.
@@ -14,8 +15,8 @@ const NAV: Array<{ href: string; label: string }> = [
 function Brand() {
   return (
     <Link href="/" className="touch flex items-center gap-2" aria-label="Rasa Nusantara Catering — beranda">
-      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bark font-display text-lg text-cream" aria-hidden="true">
-        🍽
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bark text-cream" aria-hidden="true">
+        <ClocheIcon className="h-5 w-5" />
       </span>
       <span className="flex flex-col justify-center leading-none">
         <span className="font-display text-xl font-bold sm:text-2xl">RasaNusa</span>

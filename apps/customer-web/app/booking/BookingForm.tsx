@@ -16,13 +16,14 @@ function todayPlus(days: number): string {
 interface Props {
   tipeList: string[];
   paketAwal: PackageRow | null;
+  initialTanggal?: string;
 }
 
 // Formulir inquiry -> POST /api/inquiries. Pilihan cart-lite (localStorage) otomatis terbawa ke catatan.
-export default function BookingForm({ tipeList, paketAwal }: Props) {
+export default function BookingForm({ tipeList, paketAwal, initialTanggal = "" }: Props) {
   const [nama, setNama] = useState("");
   const [phone, setPhone] = useState("");
-  const [tanggal, setTanggal] = useState(todayPlus(30));
+  const [tanggal, setTanggal] = useState(/^\d{4}-\d{2}-\d{2}$/.test(initialTanggal) ? initialTanggal : todayPlus(30));
   const [tipeAcara, setTipeAcara] = useState(tipeList[0] ?? "Pernikahan");
   const [pax, setPax] = useState("200");
   const [venue, setVenue] = useState("");
