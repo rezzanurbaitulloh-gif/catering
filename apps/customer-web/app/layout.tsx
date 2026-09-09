@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { CustomerAuthProvider } from "@/lib/auth";
+import { body, display } from "@/lib/fonts";
 import { CONTACT_FALLBACK, SITE } from "@/lib/constants";
 import { waLink } from "@/lib/format";
 import "./globals.css";
@@ -36,7 +37,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const wa = waLink(CONTACT_FALLBACK.whatsapp, "Halo Rasa Nusantara Catering, saya ingin bertanya.");
   return (
-    <html lang="id">
+    <html lang="id" className={`${display.variable} ${body.variable}`}>
       <body className="font-body">
         <a
           href="#konten"

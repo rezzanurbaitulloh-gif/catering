@@ -54,6 +54,38 @@ body {
   .kicker {
     @apply text-xs font-bold uppercase tracking-[0.22em] text-gold;
   }
+  /* Eyebrow editorial dengan garis (gaya Just Essence) */
+  .kicker-rule {
+    @apply flex items-center gap-3 text-xs font-bold uppercase tracking-[0.22em] text-gold;
+  }
+  .kicker-rule::before {
+    content: "";
+    @apply block h-px w-10 bg-gold;
+  }
+  /* Judul display editorial: ketat + seimbang */
+  .display-tight {
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  /* Reveal saat scroll (hormat reduced-motion) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
   .card {
     @apply rounded-brand border border-line bg-white p-5 shadow-[0_1px_0_rgba(28,25,23,0.04)];
   }
@@ -61,13 +93,8 @@ body {
     @apply h-px w-16 bg-gold;
   }
   /* Marquee testimoni: mengalir pelan, berhenti saat hover/fokus */
-  @keyframes marquee-x {
-    to {
-      transform: translateX(-50%);
-    }
-  }
   .marquee-track {
-    animation: marquee-x 45s linear infinite;
+    animation: marquee-x 48s linear infinite;
   }
   .marquee:hover .marquee-track,
   .marquee:focus-within .marquee-track {
@@ -77,7 +104,19 @@ body {
     .marquee-track {
       animation: none;
     }
+    .hero-rise {
+      animation: none !important;
+      opacity: 1 !important;
+    }
   }
+  /* Masuk hero: naik perlahan sekali jalan */
+  .hero-rise {
+    opacity: 0;
+    animation: hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .hero-rise-1 { animation-delay: 0.05s; }
+  .hero-rise-2 { animation-delay: 0.18s; }
+  .hero-rise-3 { animation-delay: 0.32s; }
   /* Chip kategori ala marketplace kuliner */
   .chip {
     @apply touch inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-white px-4 text-sm font-semibold text-ink/80 transition-colors hover:border-gold hover:text-gold-deep;
@@ -118,5 +157,23 @@ body {
   }
   main {
     min-height: auto !important;
+  }
+}
+
+/* Keyframes tingkat root (di luar layer agar selalu terdaftar) */
+@keyframes marquee-x {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

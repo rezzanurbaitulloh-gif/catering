@@ -17,8 +17,8 @@ const config: Config = {
         night: "#141210",
       },
       fontFamily: {
-        display: ["Fraunces", "Georgia", "'Times New Roman'", "serif"],
-        body: ["Inter", "system-ui", "-apple-system", "'Segoe UI'", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "'Times New Roman'", "serif"],
+        body: ["var(--font-body)", "system-ui", "-apple-system", "'Segoe UI'", "sans-serif"],
       },
       borderRadius: { brand: "14px" },
       minHeight: { touch: "44px" },

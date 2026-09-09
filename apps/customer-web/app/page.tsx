@@ -4,6 +4,7 @@ import PackageCard from "@/components/PackageCard";
 import QuickBook from "@/components/QuickBook";
 import MenuTabs from "@/components/MenuTabs";
 import TestimonialMarquee from "@/components/TestimonialMarquee";
+import Reveal from "@/components/Reveal";
 import { ChatIcon, ChefIcon, ClockIcon, WheatIcon } from "@/components/icons";
 import { BUSINESS_ID, HERO_IMG, HERO_FALLBACK, SITE } from "@/lib/constants";
 import { createAnonServerClient } from "@/lib/supabase-server";
@@ -94,41 +95,64 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero: headline + dwi-CTA + booking cepat + statistik nyata */}
-      <section className="relative overflow-hidden bg-bark-ink text-cream" aria-labelledby="tajuk-utama">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={HERO_IMG} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
-        <div className="absolute inset-0 bg-gradient-to-r from-bark-ink/95 via-bark-ink/70 to-bark-ink/20" aria-hidden="true" />
-        <div className="container-x relative py-14 md:py-20">
-          <p className="kicker !text-caramel">Rencanakan Hajatan Impian · Pesan Catering Terbaik</p>
-          <h1 id="tajuk-utama" className="mt-3 max-w-2xl font-display text-4xl font-bold leading-[1.1] sm:text-5xl">
-            {hero.title}
-          </h1>
-          <p className="mt-3 max-w-xl leading-relaxed text-cream/80">{hero.subtitle}</p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link href="/booking" className="btn-gold">
-              Pesan Sekarang
-            </Link>
-            <Link href="/paket" className="touch inline-flex items-center justify-center gap-2 rounded-brand border border-cream/40 px-6 py-3 text-base font-semibold text-cream hover:bg-cream/10">
-              Jelajahi Paket
-            </Link>
+      {/* Hero editorial: serif raksasa + komposisi lingkaran + booking cepat */}
+      <section className="overflow-hidden" aria-labelledby="tajuk-utama">
+        <div className="container-x grid items-center gap-10 pb-10 pt-12 md:grid-cols-[1.05fr_0.95fr] md:pt-16">
+          <div className="hero-rise hero-rise-1">
+            <p className="kicker-rule">Katering Hajatan · Nganjuk</p>
+            <h1 id="tajuk-utama" className="display-tight mt-4 font-display text-5xl font-semibold leading-[1.04] text-bark-ink sm:text-6xl">
+              {hero.title}
+            </h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/70">{hero.subtitle}</p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <Link href="/paket" className="touch inline-flex items-center justify-center rounded-full bg-bark-ink px-8 py-3.5 text-base font-semibold text-cream transition-colors hover:bg-bark-deep">
+                {hero.cta}
+              </Link>
+              <Link href="/booking" className="touch inline-flex items-center justify-center rounded-full border border-bark-ink/25 px-8 py-3.5 text-base font-semibold text-bark-ink transition-colors hover:border-bark-ink hover:bg-bark-ink hover:text-cream">
+                Pesan Acara Anda
+              </Link>
+            </div>
           </div>
-          <div className="mt-6">
-            <QuickBook />
+          <div className="hero-rise hero-rise-2 relative mx-auto w-full max-w-[440px]">
+            <div className="absolute -inset-4 rounded-full bg-gold-soft/60 blur-2xl" aria-hidden="true" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={HERO_IMG}
+              alt="Hidangan prasmanan Rasa Nusantara"
+              className="relative aspect-square w-full rounded-full border-[10px] border-white object-cover shadow-2xl"
+              loading="eager"
+            />
+            {rating ? (
+              <div className="absolute -left-2 top-10 rounded-brand border border-line bg-white/95 px-4 py-3 shadow-lg backdrop-blur sm:-left-8" role="status" aria-label={`Rating ${rating.avg} dari ${rating.count} testimoni`}>
+                <p className="font-display text-2xl font-bold text-bark-deep">{rating.avg.toLocaleString("id-ID")}</p>
+                <p className="text-sm font-bold text-gold">{"★".repeat(Math.round(rating.avg))}</p>
+                <p className="mt-0.5 text-xs text-muted">{rating.count} testimoni</p>
+              </div>
+            ) : null}
+            {stats.pax > 0 ? (
+              <div className="absolute -right-2 bottom-10 rounded-brand border border-line bg-white/95 px-4 py-3 shadow-lg backdrop-blur sm:-right-6" role="status">
+                <p className="font-display text-2xl font-bold text-bark-deep">{stats.pax.toLocaleString("id-ID")}+</p>
+                <p className="mt-0.5 text-xs text-muted">porsi tersaji</p>
+              </div>
+            ) : null}
           </div>
-          <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-3 text-sm">
-            <div><dt className="text-cream/60">Acara selesai</dt><dd className="font-display text-2xl font-bold">{stats.done}</dd></div>
-            <div><dt className="text-cream/60">Porsi tersaji</dt><dd className="font-display text-2xl font-bold">{stats.pax.toLocaleString("id-ID")}</dd></div>
-            <div><dt className="text-cream/60">Paket aktif</dt><dd className="font-display text-2xl font-bold">{stats.packages}</dd></div>
-            {rating ? <div><dt className="text-cream/60">Rating</dt><dd className="font-display text-2xl font-bold">{rating.avg.toLocaleString("id-ID")} ★ <span className="text-sm font-normal text-cream/60">({rating.count})</span></dd></div> : null}
+        </div>
+        <div className="container-x pb-12">
+          <QuickBook />
+          <dl className="mt-8 flex flex-wrap gap-x-12 gap-y-4 border-t border-line pt-6 text-sm">
+            <div><dt className="text-muted">Acara selesai</dt><dd className="font-display text-3xl font-semibold">{stats.done}</dd></div>
+            <div><dt className="text-muted">Paket aktif</dt><dd className="font-display text-3xl font-semibold">{stats.packages}</dd></div>
+            <div><dt className="text-muted">Tanda jadi</dt><dd className="font-display text-3xl font-semibold">30%</dd></div>
+            <div><dt className="text-muted">Wilayah</dt><dd className="font-display text-3xl font-semibold">Nganjuk+</dd></div>
           </dl>
         </div>
       </section>
 
       {/* Layanan */}
       <section className="container-x py-12" aria-labelledby="layanan">
-        <p className="kicker">Layanan Kami</p>
+        <p className="kicker-rule">01 · Layanan Kami</p>
         <h2 id="layanan" className="mt-2 font-display text-3xl font-bold">Apa yang Kami Tawarkan</h2>
+        <Reveal>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((s) => (
             <li key={s.title} className="card group">
@@ -147,6 +171,7 @@ export default async function HomePage() {
             </li>
           ))}
         </ul>
+        </Reveal>
       </section>
 
       {/* Paket populer */}
@@ -154,7 +179,7 @@ export default async function HomePage() {
         <div className="container-x py-12">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="kicker">Penawaran Spesial</p>
+              <p className="kicker-rule">02 · Penawaran Spesial</p>
               <h2 id="paket-unggulan" className="mt-2 font-display text-3xl font-bold">Paket Populer</h2>
             </div>
             <Link href="/paket" className="touch inline-flex items-center text-sm font-bold text-gold-deep underline">
@@ -162,11 +187,13 @@ export default async function HomePage() {
             </Link>
           </div>
           {packages.length ? (
+            <Reveal>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {packages.map((p) => (
                 <PackageCard key={p.id} pkg={p} />
               ))}
             </div>
+            </Reveal>
           ) : (
             <p className="card mt-6 text-sm text-ink/70" role="status">
               Daftar paket sedang dimuat. Hubungi WhatsApp kami untuk buku menu terbaru.
@@ -177,7 +204,7 @@ export default async function HomePage() {
 
       {/* Jelajahi menu */}
       <section className="container-x py-12" aria-labelledby="menu">
-        <p className="kicker">Menu Kami</p>
+        <p className="kicker-rule">03 · Menu Kami</p>
         <h2 id="menu" className="mt-2 font-display text-3xl font-bold">Hidangan Paling Digemari</h2>
         <div className="mt-5">
           <MenuTabs items={menu} />
@@ -188,7 +215,7 @@ export default async function HomePage() {
       {venues.length ? (
         <section className="border-y border-line bg-white/60" aria-labelledby="venue">
           <div className="container-x py-12">
-            <p className="kicker">Venue Rekanan</p>
+            <p className="kicker-rule">04 · Venue Rekanan</p>
             <h2 id="venue" className="mt-2 font-display text-3xl font-bold">Lokasi Favorit Pelanggan</h2>
             <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {venues.slice(0, 3).map((v) => (
@@ -206,7 +233,7 @@ export default async function HomePage() {
 
       {/* Mengapa */}
       <section className="container-x py-12" aria-labelledby="mengapa">
-        <p className="kicker">Cerita Kami</p>
+        <p className="kicker-rule">05 · Cerita Kami</p>
         <h2 id="mengapa" className="mt-2 max-w-2xl font-display text-3xl font-bold">Dipercaya ratusan hajatan di Nganjuk &amp; sekitarnya</h2>
         <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {MENGAPA.map((m) => (
@@ -224,7 +251,7 @@ export default async function HomePage() {
       {/* Testimoni marquee */}
       <section className="border-y border-line bg-white/60 py-12" aria-labelledby="kata-mereka">
         <div className="container-x">
-          <p className="kicker">Kata Mereka</p>
+          <p className="kicker-rule">06 · Kata Mereka</p>
           <h2 id="kata-mereka" className="mt-2 font-display text-3xl font-bold">Makanan seramah pelayanannya</h2>
         </div>
         <TestimonialMarquee items={testimonials} />
