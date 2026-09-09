@@ -40,6 +40,32 @@ export interface TestimonialRow {
   is_published: boolean;
 }
 
+export interface MenuItemRow {
+  id: string;
+  business_id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  image_url: string | null;
+  is_active: boolean;
+}
+
+export interface VenueRow {
+  id: string;
+  business_id: string;
+  name: string;
+  address: string;
+  maps_url: string | null;
+  contact_name: string | null;
+  contact_phone: string | null;
+  access_notes: string | null;
+  parking_notes: string | null;
+  power_notes: string | null;
+  restrictions: string | null;
+  setup_notes: string | null;
+  photo_urls: string[];
+}
+
 export interface GalleryRow {
   id: string;
   business_id: string;

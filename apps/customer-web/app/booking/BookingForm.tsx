@@ -17,15 +17,20 @@ interface Props {
   tipeList: string[];
   paketAwal: PackageRow | null;
   initialTanggal?: string;
+  initialTipe?: string;
+  initialPax?: string;
 }
 
 // Formulir inquiry -> POST /api/inquiries. Pilihan cart-lite (localStorage) otomatis terbawa ke catatan.
-export default function BookingForm({ tipeList, paketAwal, initialTanggal = "" }: Props) {
+export default function BookingForm({ tipeList, paketAwal, initialTanggal = "", initialTipe = "", initialPax = "" }: Props) {
   const [nama, setNama] = useState("");
   const [phone, setPhone] = useState("");
   const [tanggal, setTanggal] = useState(/^\d{4}-\d{2}-\d{2}$/.test(initialTanggal) ? initialTanggal : todayPlus(30));
-  const [tipeAcara, setTipeAcara] = useState(tipeList[0] ?? "Pernikahan");
-  const [pax, setPax] = useState("200");
+  const [tipeAcara, setTipeAcara] = useState(tipeList.includes(initialTipe) ? initialTipe : (tipeList[0] ?? "Pernikahan"));
+  const [pax, setPax] = useState(() => {
+    const n = Number(initialPax);
+    return Number.isInteger(n) && n > 0 ? String(n) : "200";
+  });
   const [venue, setVenue] = useState("");
   const [catatan, setCatatan] = useState("");
   const [vegetarian, setVegetarian] = useState("0");

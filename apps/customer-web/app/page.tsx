@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PackageCard from "@/components/PackageCard";
-import TestimonialCarousel from "@/components/TestimonialCarousel";
+import QuickBook from "@/components/QuickBook";
+import MenuTabs from "@/components/MenuTabs";
+import TestimonialMarquee from "@/components/TestimonialMarquee";
 import { ChatIcon, ChefIcon, ClockIcon, WheatIcon } from "@/components/icons";
-import { BUSINESS_ID, CATEGORIES, CONTACT_FALLBACK, HERO_IMG, HERO_FALLBACK, SITE } from "@/lib/constants";
-import { waLink } from "@/lib/format";
+import { BUSINESS_ID, HERO_IMG, HERO_FALLBACK, SITE } from "@/lib/constants";
 import { createAnonServerClient } from "@/lib/supabase-server";
-import type { PackageRow, TestimonialRow } from "@/lib/types";
+import { createPrivilegedClient } from "@/lib/server-db";
+import type { MenuItemRow, PackageRow, TestimonialRow, VenueRow } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: `${SITE.tagline}`,
@@ -16,38 +18,68 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 async function getHomeData() {
-  const fallback = { hero: HERO_FALLBACK, packages: [] as PackageRow[], testimonials: [] as TestimonialRow[], rating: null as { avg: number; count: number } | null };
   const sb = createAnonServerClient();
+  const fallback = {
+    hero: HERO_FALLBACK, packages: [] as PackageRow[], testimonials: [] as TestimonialRow[],
+    menu: [] as MenuItemRow[], venues: [] as VenueRow[],
+    rating: null as { avg: number; count: number } | null,
+    stats: { done: 0, pax: 0, packages: 0 },
+  };
   if (!sb) return fallback;
   try {
-    const [heroRes, pkgRes, testiRes] = await Promise.all([
+    const [heroRes, pkgRes, testiRes, menuRes, venueRes] = await Promise.all([
       sb.from("website_content").select("value").eq("business_id", BUSINESS_ID).eq("key", "hero").maybeSingle(),
       sb.from("packages").select("*").eq("business_id", BUSINESS_ID).eq("is_active", true).order("base_price_per_pax", { ascending: true }).limit(4),
-      sb.from("testimonials").select("*").eq("business_id", BUSINESS_ID).eq("is_published", true).order("rating", { ascending: false }).limit(6),
+      sb.from("testimonials").select("*").eq("business_id", BUSINESS_ID).eq("is_published", true).order("rating", { ascending: false }).limit(8),
+      sb.from("menu_items").select("*").eq("business_id", BUSINESS_ID).eq("is_active", true).order("category").order("name").limit(60),
+      sb.from("venues").select("*").eq("business_id", BUSINESS_ID).limit(6),
     ]);
     const heroValue = (heroRes.data?.value ?? {}) as Record<string, unknown>;
     const testimonials = (testiRes.data ?? []) as TestimonialRow[];
     const ratings = testimonials.map((t) => t.rating).filter((r) => r > 0);
+    // Statistik nyata khusus server (tanpa membuka data privat ke publik).
+    let done = 0;
+    let pax = 0;
+    try {
+      const { client, mode } = createPrivilegedClient();
+      if (client && mode === "service") {
+        const { data: evs } = await client
+          .from("events")
+          .select("status,pax_final,pax_confirmed")
+          .eq("business_id", BUSINESS_ID)
+          .in("status", ["COMPLETED", "CLOSED"])
+          .limit(500);
+        const list = (evs ?? []) as Array<{ status: string; pax_final: number | null; pax_confirmed: number }>;
+        done = list.length;
+        pax = list.reduce((a, e) => a + (e.pax_final ?? e.pax_confirmed ?? 0), 0);
+      }
+    } catch { /* statistik opsional */ }
+    const packages = (pkgRes.data ?? []) as PackageRow[];
     return {
       hero: {
         title: typeof heroValue.title === "string" ? heroValue.title : HERO_FALLBACK.title,
         subtitle: typeof heroValue.subtitle === "string" ? heroValue.subtitle : HERO_FALLBACK.subtitle,
         cta: typeof heroValue.cta === "string" ? heroValue.cta : HERO_FALLBACK.cta,
       },
-      packages: (pkgRes.data ?? []) as PackageRow[],
+      packages,
       testimonials,
+      menu: (menuRes.data ?? []) as MenuItemRow[],
+      venues: (venueRes.data ?? []) as VenueRow[],
       rating: ratings.length ? { avg: Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10, count: ratings.length } : null,
+      stats: { done, pax, packages: packages.length },
     };
   } catch {
     return fallback;
   }
 }
 
-const CARA_KERJA = [
-  { no: "1", title: "Pilih Paket", body: "Telusuri paket sesuai acara & anggaran, hitung estimasi instan." },
-  { no: "2", title: "Isi Detail", body: "Tanggal, tamu, lokasi, dan kebutuhan diet tamu Anda." },
-  { no: "3", title: "Lakukan Pembayaran", body: "DP 30% via transfer/QRIS/Midtrans, pelunasan terpantau." },
-  { no: "4", title: "Pesanan Diproses", body: "Produksi, packing, dan pengiriman terdokumentasi." },
+const SERVICES = [
+  { icon: WheatIcon, title: "Pernikahan", body: "Prasmanan elegan + dekorasi + layanan saji lengkap.", kat: "Prasmanan" },
+  { icon: ChefIcon, title: "Korporat", body: "Nasi box & prasmanan kantor, rapat, gathering.", kat: "Nasi Box" },
+  { icon: ChatIcon, title: "Pengajian", body: "Menu rumahan hangat untuk syukuran & tasyakuran.", kat: "Pengajian" },
+  { icon: ClockIcon, title: "Tepat Waktu", body: "Keberangkatan & setup terpantau per tahap.", kat: "" },
+  { icon: WheatIcon, title: "Premium", body: "Live stall & carving untuk momen istimewa.", kat: "Premium" },
+  { icon: ChefIcon, title: "Konsultasi Menu", body: "Disusun sesuai anggaran & kebutuhan diet tamu.", kat: "" },
 ];
 
 const MENGAPA = [
@@ -58,161 +90,148 @@ const MENGAPA = [
 ];
 
 export default async function HomePage() {
-  const { hero, packages, testimonials, rating } = await getHomeData();
-  const wa = waLink(CONTACT_FALLBACK.whatsapp, "Halo Rasa Nusantara Catering, saya ingin minta penawaran.");
+  const { hero, packages, testimonials, menu, venues, rating, stats } = await getHomeData();
 
   return (
     <>
-      {/* Hero full-bleed foto gelap: headline + cari + chip + kartu rating */}
+      {/* Hero: headline + dwi-CTA + booking cepat + statistik nyata */}
       <section className="relative overflow-hidden bg-bark-ink text-cream" aria-labelledby="tajuk-utama">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={HERO_IMG}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="eager"
-        />
+        <img src={HERO_IMG} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
         <div className="absolute inset-0 bg-gradient-to-r from-bark-ink/95 via-bark-ink/70 to-bark-ink/20" aria-hidden="true" />
         <div className="container-x relative py-14 md:py-20">
-          <p className="kicker !text-caramel">Catering Berkualitas</p>
-          <h1 id="tajuk-utama" className="mt-3 max-w-xl font-display text-4xl font-bold leading-[1.1] sm:text-5xl">
+          <p className="kicker !text-caramel">Rencanakan Hajatan Impian · Pesan Catering Terbaik</p>
+          <h1 id="tajuk-utama" className="mt-3 max-w-2xl font-display text-4xl font-bold leading-[1.1] sm:text-5xl">
             {hero.title}
           </h1>
           <p className="mt-3 max-w-xl leading-relaxed text-cream/80">{hero.subtitle}</p>
-          <form action="/paket" method="get" role="search" aria-label="Cari paket" className="mt-6 flex max-w-xl flex-col gap-2 rounded-brand bg-white p-2 shadow-xl sm:flex-row sm:items-center">
-            <label htmlFor="hero-q" className="sr-only">Cari paket catering</label>
-            <input id="hero-q" name="q" type="search" placeholder="Cari paket catering…" className="min-h-[44px] flex-1 rounded-lg bg-transparent px-4 text-ink placeholder:text-muted" autoComplete="off" />
-            <label htmlFor="hero-t" className="sr-only">Tanggal acara</label>
-            <input id="hero-t" name="tanggal" type="date" className="min-h-[44px] rounded-lg bg-transparent px-3 text-sm text-ink/70 sm:w-40" />
-            <button type="submit" className="btn-gold shrink-0">
-              Cari Paket
-            </button>
-          </form>
-          <div className="mt-4 flex flex-wrap gap-2" aria-label="Kategori cepat">
-            {CATEGORIES.map((c) => (
-              <Link key={c.label} href={`/paket?kat=${encodeURIComponent(c.label)}`} className="touch inline-flex items-center rounded-full bg-cream/15 px-4 text-sm font-semibold text-cream backdrop-blur hover:bg-cream/25">
-                {c.label}
-              </Link>
-            ))}
-          </div>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link href="/booking" className="btn-gold">
-              {hero.cta}
+              Pesan Sekarang
             </Link>
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="touch inline-flex items-center justify-center gap-2 rounded-brand border border-cream/40 px-6 py-3 text-base font-semibold text-cream hover:bg-cream/10">
-              Chat WhatsApp
-            </a>
+            <Link href="/paket" className="touch inline-flex items-center justify-center gap-2 rounded-brand border border-cream/40 px-6 py-3 text-base font-semibold text-cream hover:bg-cream/10">
+              Jelajahi Paket
+            </Link>
           </div>
+          <div className="mt-6">
+            <QuickBook />
+          </div>
+          <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-3 text-sm">
+            <div><dt className="text-cream/60">Acara selesai</dt><dd className="font-display text-2xl font-bold">{stats.done}</dd></div>
+            <div><dt className="text-cream/60">Porsi tersaji</dt><dd className="font-display text-2xl font-bold">{stats.pax.toLocaleString("id-ID")}</dd></div>
+            <div><dt className="text-cream/60">Paket aktif</dt><dd className="font-display text-2xl font-bold">{stats.packages}</dd></div>
+            {rating ? <div><dt className="text-cream/60">Rating</dt><dd className="font-display text-2xl font-bold">{rating.avg.toLocaleString("id-ID")} ★ <span className="text-sm font-normal text-cream/60">({rating.count})</span></dd></div> : null}
+          </dl>
         </div>
-        {rating ? (
-          <div className="absolute bottom-5 right-5 hidden rounded-brand border border-line bg-white/95 px-4 py-3 text-center text-ink shadow-xl backdrop-blur sm:block" role="status" aria-label={`Rating ${rating.avg} dari ${rating.count} testimoni`}>
-            <p className="font-display text-2xl font-bold text-bark-deep">{rating.avg.toLocaleString("id-ID")}</p>
-            <p className="text-sm font-bold text-gold">{"★".repeat(Math.round(rating.avg))}</p>
-            <p className="mt-0.5 text-xs text-muted">{rating.count} testimoni</p>
-          </div>
-        ) : null}
       </section>
 
-      {/* Kategori ala marketplace */}
-      <section className="container-x py-10" aria-labelledby="kategori">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="kicker">Kategori Catering</p>
-            <h2 id="kategori" className="mt-2 font-display text-2xl font-bold sm:text-3xl">Temukan paket sesuai acara Anda</h2>
-          </div>
-          <Link href="/paket" className="touch inline-flex items-center text-sm font-bold text-gold-deep underline">
-            Lihat Semua →
-          </Link>
-        </div>
-        <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { label: "Prasmanan", img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=500&q=60", desc: "Untuk acara besar" },
-            { label: "Nasi Box", img: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=500&q=60", desc: "Praktis & hemat" },
-            { label: "Pengajian", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=500&q=60", desc: "Hangat kekeluargaan" },
-            { label: "Premium", img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=500&q=60", desc: "Kelas istimewa" },
-          ].map((c) => (
-            <li key={c.label}>
-              <Link href={`/paket?kat=${encodeURIComponent(c.label)}`} className="food-card group block">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={c.img} alt={c.label} loading="lazy" className="!h-28 sm:!h-32" />
-                <span className="block p-3">
-                  <span className="block text-sm font-bold group-hover:text-gold-deep">{c.label}</span>
-                  <span className="block text-xs text-muted">{c.desc}</span>
-                </span>
-              </Link>
+      {/* Layanan */}
+      <section className="container-x py-12" aria-labelledby="layanan">
+        <p className="kicker">Layanan Kami</p>
+        <h2 id="layanan" className="mt-2 font-display text-3xl font-bold">Apa yang Kami Tawarkan</h2>
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {SERVICES.map((s) => (
+            <li key={s.title} className="card group">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gold-soft text-bark-deep" aria-hidden="true"><s.icon /></span>
+              <h3 className="mt-3 font-display text-xl font-bold">{s.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-ink/70">{s.body}</p>
+              {s.kat ? (
+                <Link href={`/paket?kat=${encodeURIComponent(s.kat)}`} className="mt-3 inline-flex min-h-[44px] items-center text-sm font-bold text-gold-deep underline group-hover:no-underline">
+                  Lihat paket →
+                </Link>
+              ) : (
+                <Link href="/kontak" className="mt-3 inline-flex min-h-[44px] items-center text-sm font-bold text-gold-deep underline group-hover:no-underline">
+                  Hubungi kami →
+                </Link>
+              )}
             </li>
           ))}
         </ul>
       </section>
 
       {/* Paket populer */}
-      <section className="container-x pb-4" aria-labelledby="paket-unggulan">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="kicker">Dari Buku Menu</p>
-            <h2 id="paket-unggulan" className="mt-2 font-display text-3xl font-bold">Paket Populer</h2>
+      <section className="border-y border-line bg-white/60" aria-labelledby="paket-unggulan">
+        <div className="container-x py-12">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="kicker">Penawaran Spesial</p>
+              <h2 id="paket-unggulan" className="mt-2 font-display text-3xl font-bold">Paket Populer</h2>
+            </div>
+            <Link href="/paket" className="touch inline-flex items-center text-sm font-bold text-gold-deep underline">
+              Lihat Semua →
+            </Link>
           </div>
-          <Link href="/paket" className="touch inline-flex items-center text-sm font-bold text-gold-deep underline">
-            Lihat Semua →
-          </Link>
+          {packages.length ? (
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {packages.map((p) => (
+                <PackageCard key={p.id} pkg={p} />
+              ))}
+            </div>
+          ) : (
+            <p className="card mt-6 text-sm text-ink/70" role="status">
+              Daftar paket sedang dimuat. Hubungi WhatsApp kami untuk buku menu terbaru.
+            </p>
+          )}
         </div>
-        {packages.length ? (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {packages.map((p) => (
-              <PackageCard key={p.id} pkg={p} />
-            ))}
-          </div>
-        ) : (
-          <p className="card mt-6 text-sm text-ink/70" role="status">
-            Daftar paket sedang dimuat. Hubungi WhatsApp kami untuk buku menu terbaru.
-          </p>
-        )}
       </section>
+
+      {/* Jelajahi menu */}
+      <section className="container-x py-12" aria-labelledby="menu">
+        <p className="kicker">Menu Kami</p>
+        <h2 id="menu" className="mt-2 font-display text-3xl font-bold">Hidangan Paling Digemari</h2>
+        <div className="mt-5">
+          <MenuTabs items={menu} />
+        </div>
+      </section>
+
+      {/* Venue */}
+      {venues.length ? (
+        <section className="border-y border-line bg-white/60" aria-labelledby="venue">
+          <div className="container-x py-12">
+            <p className="kicker">Venue Rekanan</p>
+            <h2 id="venue" className="mt-2 font-display text-3xl font-bold">Lokasi Favorit Pelanggan</h2>
+            <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {venues.slice(0, 3).map((v) => (
+                <li key={v.id} className="card">
+                  <h3 className="font-display text-xl font-bold">{v.name}</h3>
+                  <p className="mt-1 text-sm text-ink/70">{v.address}</p>
+                  {v.contact_name ? <p className="mt-2 text-sm">CP: {v.contact_name}{v.contact_phone ? ` · ${v.contact_phone}` : ""}</p> : null}
+                  {v.maps_url ? <a href={v.maps_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex min-h-[44px] items-center text-sm font-bold text-gold-deep underline">Lihat peta →</a> : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       {/* Mengapa */}
-      <section className="border-y border-line bg-white/60" aria-labelledby="mengapa">
-        <div className="container-x py-12">
-          <p className="kicker">Mengapa Memilih Kami</p>
-          <h2 id="mengapa" className="mt-2 font-display text-3xl font-bold">Hajatan tenang, tamu kenyang</h2>
-          <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {MENGAPA.map((m) => (
-              <li key={m.title} className="flex gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold-soft text-bark-deep" aria-hidden="true"><m.icon /></span>
-                <span>
-                  <span className="block font-bold">{m.title}</span>
-                  <span className="mt-1 block text-sm leading-relaxed text-ink/70">{m.body}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Cara memesan */}
-      <section className="container-x py-12" aria-labelledby="cara-kerja">
-        <p className="kicker">Cara Memesan</p>
-        <h2 id="cara-kerja" className="mt-2 font-display text-3xl font-bold">Dari obrolan sampai piring bersih</h2>
-        <ol className="mt-8 grid gap-6 md:grid-cols-4">
-          {CARA_KERJA.map((s) => (
-            <li key={s.no} className="border-t-2 border-bark pt-4">
-              <p className="font-display text-4xl font-bold text-bark/30" aria-hidden="true">{s.no}</p>
-              <h3 className="mt-2 font-bold">{s.title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-ink/70">{s.body}</p>
+      <section className="container-x py-12" aria-labelledby="mengapa">
+        <p className="kicker">Cerita Kami</p>
+        <h2 id="mengapa" className="mt-2 max-w-2xl font-display text-3xl font-bold">Dipercaya ratusan hajatan di Nganjuk &amp; sekitarnya</h2>
+        <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {MENGAPA.map((m) => (
+            <li key={m.title} className="flex gap-3">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold-soft text-bark-deep" aria-hidden="true"><m.icon /></span>
+              <span>
+                <span className="block font-bold">{m.title}</span>
+                <span className="mt-1 block text-sm leading-relaxed text-ink/70">{m.body}</span>
+              </span>
             </li>
           ))}
-        </ol>
+        </ul>
       </section>
 
-      {/* Testimoni */}
-      <section className="container-x pb-12" aria-labelledby="kata-mereka">
-        <p className="kicker">Kata Mereka</p>
-        <h2 id="kata-mereka" className="mt-2 text-center font-display text-3xl font-bold">Yang Mereka Katakan</h2>
-        <TestimonialCarousel items={testimonials} />
+      {/* Testimoni marquee */}
+      <section className="border-y border-line bg-white/60 py-12" aria-labelledby="kata-mereka">
+        <div className="container-x">
+          <p className="kicker">Kata Mereka</p>
+          <h2 id="kata-mereka" className="mt-2 font-display text-3xl font-bold">Makanan seramah pelayanannya</h2>
+        </div>
+        <TestimonialMarquee items={testimonials} />
       </section>
 
       {/* Pita CTA */}
-      <section className="container-x pb-12" aria-labelledby="cta-akhir">
+      <section className="container-x py-12" aria-labelledby="cta-akhir">
         <div className="rounded-brand bg-caramel px-6 py-10 text-center text-bark-ink sm:px-12">
           <h2 id="cta-akhir" className="font-display text-3xl font-bold">Siap Mengadakan Acara Spesial?</h2>
           <p className="mx-auto mt-2 max-w-xl text-bark-ink/75">Ceritakan tanggal &amp; jumlah tamu — penawaran tertulis menyusul via WhatsApp.</p>

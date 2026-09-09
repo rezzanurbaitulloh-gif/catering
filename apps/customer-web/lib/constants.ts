@@ -23,6 +23,17 @@ export const CATEGORIES = [
   { label: "Premium", match: ["premium", "eksklusif"] },
 ] as const;
 
+// Tipe acara untuk booking cepat (diselaraskan dengan event_types di DB).
+export const EVENT_TYPES = ["Pernikahan", "Korporat", "Pengajian", "Aqiqah", "Khitanan", "Ulang Tahun", "Lainnya"] as const;
+
+export const PAX_BANDS = [
+  { label: "50–100 tamu", pax: 50 },
+  { label: "100–200 tamu", pax: 100 },
+  { label: "200–300 tamu", pax: 200 },
+  { label: "300–500 tamu", pax: 300 },
+  { label: "500+ tamu", pax: 500 },
+] as const;
+
 export const CONTACT_FALLBACK = {
   whatsapp: "+6281234567890",
   phone: "(0358) 321-456",
