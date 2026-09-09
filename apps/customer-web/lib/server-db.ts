@@ -20,7 +20,11 @@ export function createPrivilegedClient(): { client: SupabaseClient | null; mode:
   const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (env && service && !service.includes("paste-")) {
     return {
-      client: createClient(env.url, service, { auth: { persistSession: false } }),
+      // Header anti-cache: pastikan baca selalu segar (pernah ada bacaan basi di jalur edge).
+      client: createClient(env.url, service, {
+        auth: { persistSession: false },
+        global: { headers: { "Cache-Control": "no-cache", Pragma: "no-cache" } },
+      }),
       mode: "service",
     };
   }

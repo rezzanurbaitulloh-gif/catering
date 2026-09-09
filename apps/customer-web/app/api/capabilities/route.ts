@@ -4,6 +4,7 @@ import { createPrivilegedClient } from "@/lib/server-db";
 
 // Selalu dinamis: mode harus memantul seketika saat diubah dari web mana pun.
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // GET /api/capabilities — daftar capability aktif untuk gating UI premium.
 export async function GET() {
