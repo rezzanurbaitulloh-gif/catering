@@ -15,5 +15,8 @@ export function publicEnv(): { url: string; anon: string } | null {
 export function createAnonServerClient(): SupabaseClient | null {
   const env = publicEnv();
   if (!env) return null;
-  return createClient(env.url, env.anon, { auth: { persistSession: false } });
+  return createClient(env.url, env.anon, {
+    auth: { persistSession: false },
+    global: { headers: { "Cache-Control": "no-cache", Pragma: "no-cache" } },
+  });
 }
