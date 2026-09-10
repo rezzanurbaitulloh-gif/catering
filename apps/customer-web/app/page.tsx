@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PackageCard from "@/components/PackageCard";
+import CoverflowCarousel from "@/components/CoverflowCarousel";
 import QuickBook from "@/components/QuickBook";
 import MenuTabs from "@/components/MenuTabs";
 import TestimonialMarquee from "@/components/TestimonialMarquee";
@@ -174,19 +175,23 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      {/* Paket populer */}
-      <section className="border-y border-line bg-white/60" aria-labelledby="paket-unggulan">
+      {/* Paket populer: coverflow 3D interaktif */}
+      <section className="overflow-hidden border-y border-line bg-white/60" aria-labelledby="paket-unggulan">
         <div className="container-x py-12">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="kicker-rule">02 · Penawaran Spesial</p>
-              <h2 id="paket-unggulan" className="mt-2 font-display text-3xl font-bold">Paket Populer</h2>
+              <h2 id="paket-unggulan" className="display-tight mt-3 font-display text-3xl font-semibold sm:text-4xl">Paket Populer</h2>
             </div>
             <Link href="/paket" className="touch inline-flex items-center text-sm font-bold text-gold-deep underline">
               Lihat Semua →
             </Link>
           </div>
-          {packages.length ? (
+          {packages.length >= 3 ? (
+            <div className="mt-4">
+              <CoverflowCarousel items={packages} />
+            </div>
+          ) : packages.length ? (
             <Reveal>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {packages.map((p) => (

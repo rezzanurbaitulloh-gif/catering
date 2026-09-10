@@ -14,7 +14,7 @@ function readFav(): string[] {
 }
 
 // Favorit paket tersimpan lokal (real, per perangkat).
-export function FavoritButton({ packageId, packageName }: { packageId: string; packageName: string }) {
+export function FavoritButton({ packageId, packageName, compact = false }: { packageId: string; packageName: string; compact?: boolean }) {
   const [on, setOn] = useState(false);
   useEffect(() => {
     setOn(readFav().includes(packageId));
@@ -26,6 +26,19 @@ export function FavoritButton({ packageId, packageName }: { packageId: string; p
       localStorage.setItem(KEY, JSON.stringify(next));
     } catch { /* abaikan */ }
     setOn(next.includes(packageId));
+  }
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        aria-pressed={on}
+        aria-label={on ? `Hapus ${packageName} dari favorit` : `Simpan ${packageName} ke favorit`}
+        className={`touch flex h-9 w-9 items-center justify-center rounded-full transition-colors ${on ? "text-bark-deep" : "text-ink/50 hover:text-bark-deep"}`}
+      >
+        <HeartIcon filled={on} />
+      </button>
+    );
   }
   return (
     <button

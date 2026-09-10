@@ -28,18 +28,37 @@ async function getPackages(): Promise<PackageRow[]> {
   }
 }
 
+async function getPromos(): Promise<string[]> {
+  const sb = createAnonServerClient();
+  if (!sb) return [];
+  try {
+    const now = new Date().toISOString();
+    const { data } = await sb
+      .from("promotions")
+      .select("code")
+      .eq("business_id", BUSINESS_ID)
+      .eq("is_active", true)
+      .or(`starts_at.is.null,starts_at.lte.${now}`)
+      .or(`ends_at.is.null,ends_at.gte.${now}`)
+      .limit(3);
+    return ((data ?? []) as Array<{ code: string }>).map((p) => p.code);
+  } catch {
+    return [];
+  }
+}
+
 export default async function PaketPage({ searchParams }: { searchParams: { kat?: string; q?: string; tanggal?: string } }) {
-  const packages = await getPackages();
+  const [packages, promos] = await Promise.all([getPackages(), getPromos()]);
   return (
-    <div className="container-x py-10">
-      <p className="kicker">Buku Menu</p>
-      <h1 className="mt-2 font-display text-4xl font-bold">Paket &amp; Harga</h1>
-      <div className="rule-gold my-4" aria-hidden="true" />
-      <p className="max-w-2xl leading-relaxed text-ink/70">
-        Semua harga per pax dan dapat disesuaikan. Buka detail paket untuk melihat isi menu, tambahan (add-on),
-        dan menghitung estimasi sesuai jumlah tamu Anda.
+    <div className="container-x py-8">
+      <p className="kicker-rule">Jelajah Katalog</p>
+      <h1 className="display-tight mt-3 font-display text-4xl font-semibold sm:text-5xl">Paket &amp; Harga</h1>
+      <p className="mt-2 max-w-2xl leading-relaxed text-ink/70">
+        Bandingkan paket prasmanan, nasi box, dan premium — harga per pax transparan.
       </p>
-      <PaketFilter initial={packages} initialKat={searchParams.kat ?? ""} initialQ={searchParams.q ?? ""} initialTanggal={searchParams.tanggal ?? ""} />
+      <div className="mt-6">
+        <PaketFilter initial={packages} initialKat={searchParams.kat ?? ""} initialQ={searchParams.q ?? ""} initialTanggal={searchParams.tanggal ?? ""} promos={promos} />
+      </div>
     </div>
   );
 }
