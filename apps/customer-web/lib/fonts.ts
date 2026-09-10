@@ -16,3 +16,5 @@ export const body = Inter({
   display: "swap",
   variable: "--font-body",
 });
+
+// Aksen kaligrafi: Fraunces italic (tanpa dependensi font tambahan).

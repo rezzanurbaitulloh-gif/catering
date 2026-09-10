@@ -20,7 +20,7 @@ function Brand() {
       </span>
       <span className="flex flex-col justify-center leading-none">
         <span className="font-display text-xl font-bold sm:text-2xl">RasaNusa</span>
-        <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-gold">
+        <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-gold-deep">
           Catering · Nganjuk
         </span>
       </span>

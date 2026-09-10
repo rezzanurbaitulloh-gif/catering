@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PackageCard from "@/components/PackageCard";
-import CoverflowCarousel from "@/components/CoverflowCarousel";
+import OrbitCarousel from "@/components/OrbitCarousel";
 import QuickBook from "@/components/QuickBook";
 import MenuTabs from "@/components/MenuTabs";
 import TestimonialMarquee from "@/components/TestimonialMarquee";
@@ -76,12 +76,12 @@ async function getHomeData() {
 }
 
 const SERVICES = [
-  { icon: WheatIcon, title: "Pernikahan", body: "Prasmanan elegan + dekorasi + layanan saji lengkap.", kat: "Prasmanan" },
-  { icon: ChefIcon, title: "Korporat", body: "Nasi box & prasmanan kantor, rapat, gathering.", kat: "Nasi Box" },
-  { icon: ChatIcon, title: "Pengajian", body: "Menu rumahan hangat untuk syukuran & tasyakuran.", kat: "Pengajian" },
-  { icon: ClockIcon, title: "Tepat Waktu", body: "Keberangkatan & setup terpantau per tahap.", kat: "" },
-  { icon: WheatIcon, title: "Premium", body: "Live stall & carving untuk momen istimewa.", kat: "Premium" },
-  { icon: ChefIcon, title: "Konsultasi Menu", body: "Disusun sesuai anggaran & kebutuhan diet tamu.", kat: "" },
+  { icon: WheatIcon, title: "Pernikahan", body: "Prasmanan elegan + dekorasi + layanan saji lengkap.", kat: "Prasmanan", img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=500&q=60" },
+  { icon: ChefIcon, title: "Korporat", body: "Nasi box & prasmanan kantor, rapat, gathering.", kat: "Nasi Box", img: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=500&q=60" },
+  { icon: ChatIcon, title: "Pengajian", body: "Menu rumahan hangat untuk syukuran & tasyakuran.", kat: "Pengajian", img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=500&q=60" },
+  { icon: ClockIcon, title: "Tepat Waktu", body: "Keberangkatan & setup terpantau per tahap.", kat: "", img: "" },
+  { icon: WheatIcon, title: "Premium", body: "Live stall & carving untuk momen istimewa.", kat: "Premium", img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=500&q=60" },
+  { icon: ChefIcon, title: "Konsultasi Menu", body: "Disusun sesuai anggaran & kebutuhan diet tamu.", kat: "", img: "" },
 ];
 
 const MENGAPA = [
@@ -96,45 +96,46 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero editorial: serif raksasa + komposisi lingkaran + booking cepat */}
+      {/* Hero Jai Ambay: pill sambutan + serif italic + kolase berlian */}
       <section className="overflow-hidden" aria-labelledby="tajuk-utama">
-        <div className="container-x grid items-center gap-10 pb-10 pt-12 md:grid-cols-[1.05fr_0.95fr] md:pt-16">
+        <div className="container-x grid items-center gap-10 pb-10 pt-10 md:grid-cols-[1.05fr_0.95fr] md:pt-14">
           <div className="hero-rise hero-rise-1">
-            <p className="kicker-rule">Katering Hajatan · Nganjuk</p>
-            <h1 id="tajuk-utama" className="display-tight mt-4 font-display text-5xl font-semibold leading-[1.04] text-bark-ink sm:text-6xl">
+            <p className="inline-flex items-center rounded-full border border-gold/60 bg-gold-soft/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-gold-deep">
+              Selamat datang di Rasa Nusantara
+            </p>
+            <p className="mt-4 font-display text-4xl italic text-gold-deep sm:text-5xl">Hajatan Impian,</p>
+            <h1 id="tajuk-utama" className="display-tight mt-1 font-display text-5xl font-semibold italic leading-[1.05] text-bark-ink sm:text-6xl">
               {hero.title}
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/70">{hero.subtitle}</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Link href="/paket" className="touch inline-flex items-center justify-center rounded-full bg-bark-ink px-8 py-3.5 text-base font-semibold text-cream transition-colors hover:bg-bark-deep">
-                {hero.cta}
+              <Link href="/booking" className="btn-gold !rounded-full !px-8 !py-3.5">
+                Pesan Sekarang
               </Link>
-              <Link href="/booking" className="touch inline-flex items-center justify-center rounded-full border border-bark-ink/25 px-8 py-3.5 text-base font-semibold text-bark-ink transition-colors hover:border-bark-ink hover:bg-bark-ink hover:text-cream">
-                Pesan Acara Anda
+              <Link href="/paket" className="btn-gold !rounded-full !border !border-bark-ink !bg-transparent !px-8 !py-3.5 !text-bark-ink hover:!bg-bark-ink hover:!text-cream">
+                Lihat Paket
               </Link>
             </div>
           </div>
-          <div className="hero-rise hero-rise-2 relative mx-auto w-full max-w-[440px]">
-            <div className="absolute -inset-4 rounded-full bg-gold-soft/60 blur-2xl" aria-hidden="true" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={HERO_IMG}
-              alt="Hidangan prasmanan Rasa Nusantara"
-              className="relative aspect-square w-full rounded-full border-[10px] border-white object-cover shadow-2xl"
-              loading="eager"
-            />
+          <div className="hero-rise hero-rise-2 relative mx-auto grid w-full max-w-[460px] grid-cols-2 gap-3" aria-hidden="true">
+            {[
+              { src: HERO_IMG, big: true },
+              { src: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=500&q=60", big: false },
+              { src: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=500&q=60", big: false },
+              { src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=500&q=60", big: false },
+            ].map((d, i) => (
+              <span
+                key={i}
+                className={`block overflow-hidden border-2 border-gold/70 bg-gold-soft shadow-lg ${i === 0 ? "col-span-2 aspect-[16/9]" : "aspect-square"} ${i % 2 ? "[clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" : "rounded-brand"}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={d.src} alt="" loading={i === 0 ? "eager" : "lazy"} className="h-full w-full object-cover" />
+              </span>
+            ))}
             {rating ? (
-              <div className="absolute -left-2 top-10 rounded-brand border border-line bg-white/95 px-4 py-3 shadow-lg backdrop-blur sm:-left-8" role="status" aria-label={`Rating ${rating.avg} dari ${rating.count} testimoni`}>
-                <p className="font-display text-2xl font-bold text-bark-deep">{rating.avg.toLocaleString("id-ID")}</p>
-                <p className="text-sm font-bold text-gold">{"★".repeat(Math.round(rating.avg))}</p>
-                <p className="mt-0.5 text-xs text-muted">{rating.count} testimoni</p>
-              </div>
-            ) : null}
-            {stats.pax > 0 ? (
-              <div className="absolute -right-2 bottom-10 rounded-brand border border-line bg-white/95 px-4 py-3 shadow-lg backdrop-blur sm:-right-6" role="status">
-                <p className="font-display text-2xl font-bold text-bark-deep">{stats.pax.toLocaleString("id-ID")}+</p>
-                <p className="mt-0.5 text-xs text-muted">porsi tersaji</p>
-              </div>
+              <span className="absolute -bottom-3 left-4 rounded-full border border-line bg-white/95 px-4 py-2 text-xs shadow-lg backdrop-blur" role="status">
+                <strong className="font-display text-base text-bark-deep">{rating.avg.toLocaleString("id-ID")} ★</strong> <span className="text-muted">{rating.count} testimoni</span>
+              </span>
             ) : null}
           </div>
         </div>
@@ -156,7 +157,14 @@ export default async function HomePage() {
         <Reveal>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((s) => (
-            <li key={s.title} className="card group">
+            <li key={s.title} className="card group overflow-hidden !p-0">
+              {s.img ? (
+                <span className="block h-32 overflow-hidden" aria-hidden="true">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={s.img} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </span>
+              ) : null}
+              <span className="block p-5 pt-4">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gold-soft text-bark-deep" aria-hidden="true"><s.icon /></span>
               <h3 className="mt-3 font-display text-xl font-bold">{s.title}</h3>
               <p className="mt-1 text-sm leading-relaxed text-ink/70">{s.body}</p>
@@ -169,6 +177,7 @@ export default async function HomePage() {
                   Hubungi kami →
                 </Link>
               )}
+              </span>
             </li>
           ))}
         </ul>
@@ -187,9 +196,9 @@ export default async function HomePage() {
               Lihat Semua →
             </Link>
           </div>
-          {packages.length >= 3 ? (
+          {packages.length >= 2 ? (
             <div className="mt-4">
-              <CoverflowCarousel items={packages} />
+              <OrbitCarousel items={packages} />
             </div>
           ) : packages.length ? (
             <Reveal>

@@ -7,7 +7,7 @@ const config: Config = {
       colors: {
         cream: "#FAF7F2",
         ink: "#1C1917",
-        gold: { DEFAULT: "#B45309", soft: "#F5E6C8", deep: "#92400E" },
+        gold: { DEFAULT: "#C19A3F", soft: "#F7ECD4", deep: "#7A5A1A" },
         bark: { DEFAULT: "#7A4A1E", deep: "#5C3611", ink: "#2A1A0C" },
         caramel: "#C67C2E",
         leaf: "#3F6212",
@@ -17,6 +17,7 @@ const config: Config = {
         night: "#141210",
       },
       fontFamily: {
+        script: ["var(--font-script)", "'Snell Roundhand'", "cursive"],
         display: ["var(--font-display)", "Georgia", "'Times New Roman'", "serif"],
         body: ["var(--font-body)", "system-ui", "-apple-system", "'Segoe UI'", "sans-serif"],
       },
